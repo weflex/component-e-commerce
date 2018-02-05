@@ -1,0 +1,72 @@
+{
+  "name": "DiscountTypeDetail",
+  "base": "PersistedModel",
+  "indexes": {
+    "unique_discount_type": {
+      "keys": {
+        "discountTypeId": 1,
+        "locale": 1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
+  "plural": "discount-type-detail",
+  "strict": true,
+  "forceId": true,
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "discountTypeId": {
+      "type": "Number",
+      "required": true
+    },
+    "title": {
+      "type": "String",
+      "required": true
+    },
+    "description": {
+      "type": "String"
+    },
+    "locale": {
+      "type": "String",
+      "required": true,
+      "default": "zh"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "discountType": {
+      "type": "belongsTo",
+      "model": "DiscountType",
+      "property": "discountTypeId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

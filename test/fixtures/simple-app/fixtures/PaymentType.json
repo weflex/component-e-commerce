@@ -1,0 +1,72 @@
+[
+  {
+    "paymentTypeId": "WeChat",
+    "method": "WeChat",
+    "createdAt": "2018-01-23T05:11:52.603Z",
+    "isEnabled": true,
+    "locale": "en"
+  },
+  {
+    "paymentTypeId": "WeChat",
+    "method": "微信",
+    "createdAt": "2018-01-23T05:11:52.603Z",
+    "isEnabled": true,
+    "locale": "zh"
+  },
+  {
+    "paymentTypeId": "Alipay",
+    "method": "Alipay",
+    "createdAt": "2018-01-23T05:11:52.603Z",
+    "isEnabled": true,
+    "locale": "en"
+  },
+  {
+    "paymentTypeId": "Alipay",
+    "method": "支付宝",
+    "createdAt": "2018-01-23T05:11:52.603Z",
+    "isEnabled": true,
+    "locale": "zh"
+  },
+  {
+    "paymentTypeId": "UnionPay",
+    "method": "Union Pay",
+    "createdAt": "2018-01-23T05:11:52.603Z",
+    "isEnabled": true,
+    "locale": "en"
+  },
+  {
+    "paymentTypeId": "UnionPay",
+    "method": "工会报酬",
+    "createdAt": "2018-01-23T05:11:52.603Z",
+    "isEnabled": true,
+    "locale": "zh"
+  },
+  {
+    "paymentTypeId": "Cash",
+    "method": "Cash",
+    "createdAt": "2018-01-23T05:11:52.603Z",
+    "isEnabled": true,
+    "locale": "en"
+  },
+  {
+    "paymentTypeId": "Cash",
+    "method": "现金",
+    "createdAt": "2018-01-23T05:11:52.603Z",
+    "isEnabled": true,
+    "locale": "zh"
+  },
+  {
+    "paymentTypeId": "MembershipCard",
+    "method": "Membership Card",
+    "createdAt": "2018-01-23T05:11:52.603Z",
+    "isEnabled": true,
+    "locale": "en"
+  },
+  {
+    "paymentTypeId": "MembershipCard",
+    "method": "会员卡",
+    "createdAt": "2018-01-23T05:11:52.603Z",
+    "isEnabled": true,
+    "locale": "zh"
+  }
+]

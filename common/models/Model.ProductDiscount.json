@@ -1,0 +1,111 @@
+{
+  "name": "ProductDiscount",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "product-discount",
+  "strict": true,
+  "idInjection": true,
+  "forceId": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "createdAt": {
+      "type": "Date",
+      "required": true
+    },
+    "createdBy": {
+      "type": "String",
+      "required": true
+    },
+    "venueId": {
+      "type": "String",
+      "required": true
+    },
+    "productId": {
+      "type": "String",
+      "required": true
+    },
+    "discountId": {
+      "type": "String",
+      "required": true
+    },
+    "startDate": {
+      "type": "Date",
+      "required": true
+    },
+    "endDate": {
+      "type": "Date"
+    },
+    "deletedBy": {
+      "type": "String"
+    },
+    "deletedAt": {
+      "type": "Date"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userCreated": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "createdBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "venue": {
+      "type": "belongsTo",
+      "model": "Venue",
+      "property": "venueId",
+      "options": {
+        "validate": true
+      }
+    },
+    "product": {
+      "type": "belongsTo",
+      "model": "Product",
+      "property": "productId",
+      "options": {
+        "validate": true
+      }
+    },
+    "discount": {
+      "type": "belongsTo",
+      "model": "Discount",
+      "property": "discountId",
+      "options": {
+        "validate": true
+      }
+    },
+    "userDeleted": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "deletedBy",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

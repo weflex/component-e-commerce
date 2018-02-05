@@ -1,0 +1,66 @@
+{
+  "name": "PaymentType",
+  "base": "PersistedModel",
+  "indexes": {
+    "unique_payment_type": {
+      "keys": {
+        "method": 1,
+        "locale": 1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
+  "plural": "payment-type",
+  "strict": true,
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "paymentTypeId": {
+      "type": "String"
+    },
+    "method": {
+      "type": "String",
+      "required": true
+    },
+    "createdAt": {
+      "type": "Date",
+      "required": true
+    },
+    "isEnabled": {
+      "type": "Boolean",
+      "default": true
+    },
+    "locale": {
+      "type": "String",
+      "required": true,
+      "default": "zh"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "name": "component-commerce",
+  "version": "1.0.0",
+  "description": "A package to manage e-commerce",
+  "main": "./lib/",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "body-parser": "1.12.2",
+    "debug": "^3.0.1",
+    "lodash": "4.6.1",
+    "qs": "^6.5.1",
+    "strong-globalize": "^3.0.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.1",
+    "eslint": "^4.6.1",
+    "eslint-config-loopback": "^8.0.0",
+    "gulp": "3.9.1",
+    "gulp-babel": "^7.0.1",
+    "gulp-istanbul": "^0.10.3",
+    "gulp-jasmine": "^2.4.2",
+    "istanbul": "^1.1.0-alpha.1",
+    "jasmine": "^2.6.0",
+    "jasmine-expect": "^3.8.1",
+    "jasmine-spec-reporter": "^4.1.1",
+    "loopback": "^3.11.1",
+    "loopback-boot": "^2.27.0",
+    "loopback-component-explorer": "2.3.0",
+    "loopback-component-fixtures": "^1.1.0",
+    "loopback-context": "^3.1.0",
+    "strong-error-handler": "^2.1.0",
+    "supertest": "^3.0.0"
+  },
+  "scripts": {
+    "prestart": "rm -rf ./commerce-db.json",
+    "start": "node test/fixtures/simple-app/server/server.js",
+    "pretest": "rm -rf ./commerce-db.json",
+    "test": "./node_modules/.bin/gulp specs",
+    "lint": "eslint .",
+    "posttest": "npm run lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weflex/component-commerce.git"
+  },
+  "bugs": {
+    "url": "https://github.com/weflex/component-commerce/issues"
+  },
+  "keywords": [
+    "e-commerce",
+    "configurable",
+    "product",
+    "transaction",
+    "ping++"
+  ],
+  "author": "Prashant Balan <prashant.balan@hotmail.com>",
+  "license": "Unlicense",
+  "homepage": "https://github.com/weflex/component-commerce#readme"
+}

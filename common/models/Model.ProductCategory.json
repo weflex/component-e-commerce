@@ -1,0 +1,103 @@
+{
+  "name": "ProductCategory",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "product-category",
+  "strict": true,
+  "idInjection": false,
+  "forceId": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "createdBy": {
+      "type": "String",
+      "required": true
+    },
+    "createdAt": {
+      "type": "Date",
+      "required": true
+    },
+    "modifiedBy": {
+      "type": "String"
+    },
+    "modifiedAt": {
+      "type": "Date"
+    },
+    "isEnabled": {
+      "type": "Boolean",
+      "required": true,
+      "default": true
+    },
+    "deletedAt": {
+      "type": "Date"
+    },
+    "deletedBy": {
+      "type": "String"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userCreated": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "foreignKey": "createdBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "userModified": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "foreignKey": "modifiedBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "userDeleted": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "foreignKey": "deletedBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "venue": {
+      "type": "belongsTo",
+      "model": "Venue",
+      "foreignKey": "venueId",
+      "options": {
+        "validate": true
+      }
+    },
+    "productCategoryDetail": {
+      "type": "hasMany",
+      "model": "ProductCategoryDetail",
+      "foreignKey": "productCategoryId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

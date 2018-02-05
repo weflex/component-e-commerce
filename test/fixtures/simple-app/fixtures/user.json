@@ -1,0 +1,33 @@
+[
+  {
+    "id": "admin",
+  	"username": "admin",
+  	"email": "admin@theweflex.com",
+  	"password": "password"
+  }, {
+    "id": "generalUser",
+  	"username": "generalUser",
+  	"email": "generalUser@theweflex.com",
+  	"password": "password"
+  }, {
+    "id": "venue1Owner",
+  	"username": "venue1Owner",
+  	"email": "venue1Owner@theweflex.com",
+  	"password": "password"
+  }, {
+    "id": "venue1Member",
+  	"username": "venue1Member",
+  	"email": "venue1Member@theweflex.com",
+  	"password": "password"
+  }, {
+    "id": "venue2Owner",
+  	"username": "venue2Owner",
+  	"email": "venue2Owner@theweflex.com",
+  	"password": "password"
+  }, {
+    "id": "venue2Member",
+  	"username": "venue2Member",
+  	"email": "venue2Member@theweflex.com",
+  	"password": "password"
+  }
+]

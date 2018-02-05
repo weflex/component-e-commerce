@@ -1,0 +1,75 @@
+{
+  "name": "BonusProduct",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "discount-product-bonus",
+  "strict": true,
+  "idInjection": true,
+  "forceId": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "freeQty": {
+      "type": "Number",
+      "required": true,
+      "default": 0
+    }
+  },
+  "validations": [],
+  "relations": {
+    "venue": {
+      "type": "belongsTo",
+      "model": "Venue",
+      "foreignKey": "venueId",
+      "options": {
+        "validate": true
+      }
+    },
+    "withProduct": {
+      "type": "belongsTo",
+      "model": "Product",
+      "foreignKey": "productId",
+      "options": {
+        "validate": true
+      }
+    },
+    "getProduct": {
+      "type": "belongsTo",
+      "model": "Product",
+      "foreignKey": "productId",
+      "options": {
+        "validate": true
+      }
+    },
+    "discount": {
+      "type": "belongsTo",
+      "model": "Discount",
+      "foreignKey": "discountId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

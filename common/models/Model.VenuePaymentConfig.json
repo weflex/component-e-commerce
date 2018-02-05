@@ -1,0 +1,87 @@
+{
+  "name": "VenuePaymentConfig",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "payment-config",
+  "strict": true,
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "createdBy": {
+      "type": "String",
+      "required": true
+    },
+    "createdAt": {
+      "type": "Date",
+      "required": true
+    },
+    "modifiedBy": {
+      "type": "String"
+    },
+    "modifiedAt": {
+      "type": "Date"
+    },
+    "isEnabled": {
+      "type": "Boolean",
+      "default": false
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userCreated": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "createdBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "userModified": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "modifiedBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "venue": {
+      "type": "belongsTo",
+      "model": "Venue",
+      "foreignKey": "venueId",
+      "options": {
+        "validate": true
+      }
+    },
+    "paymentType": {
+      "type": "belongsTo",
+      "model": "PaymentType",
+      "foreignKey": "paymentTypeId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

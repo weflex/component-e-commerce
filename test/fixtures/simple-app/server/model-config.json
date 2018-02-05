@@ -1,0 +1,124 @@
+{
+  "_meta": {
+    "sources": [
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models",
+      "../../../../common/models"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins",
+      "../../../../lib/mixins"
+    ]
+  },
+
+  "accessToken": {
+    "dataSource": "db",
+    "public": true
+  },
+  "user": {
+    "dataSource": "db",
+    "public": true
+  },
+
+  "ACL": {
+    "dataSource": "db",
+    "public": true
+  },
+  "RoleMapping": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Role": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Venue": {
+    "dataSource": "db",
+    "public": true
+  },
+  "PaymentType": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ProductCategory": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ProductCategoryDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Brand": {
+    "dataSource": "db",
+    "public": true
+  },
+  "BrandDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Product": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ProductDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ProductPricing": {
+    "dataSource": "db",
+    "public": true
+  },
+  "TransactionStatus": {
+    "dataSource": "db",
+    "public": true
+  },
+  "TransactionStatusDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Transaction": {
+    "dataSource": "db",
+    "public": true
+  },
+  "TransactionDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "VenuePaymentConfig": {
+    "dataSource": "db",
+    "public": true
+  },
+  "CardDepositHistory": {
+    "dataSource": "db",
+    "public": true
+  },
+  "CardBalance": {
+    "dataSource": "db",
+    "public": true
+  },
+  "DiscountType": {
+    "dataSource": "db",
+    "public": true
+  },
+  "DiscountTypeDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Discount": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ProductDiscount": {
+    "dataSource": "db",
+    "public": true
+  },
+  "TransactionDiscount": {
+    "dataSource": "db",
+    "public": true
+  }
+}

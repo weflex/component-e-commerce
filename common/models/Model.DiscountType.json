@@ -1,0 +1,55 @@
+{
+  "name": "DiscountType",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "discount-type",
+  "strict": true,
+  "idInjection": false,
+  "forceId": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "id": {
+      "type": "Number",
+      "id": true,
+      "generated": true
+    },
+    "createdAt": {
+      "type": "Date",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "discountTypeDetail": {
+      "type": "hasMany",
+      "model": "DiscountTypeDetail",
+      "foreignKey": "discountTypeId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

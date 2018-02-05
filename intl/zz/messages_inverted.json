@@ -1,0 +1,113 @@
+{
+  "gulpfile.js": {
+    "15": [
+      "gulp.src('test/spec/test-*.js')"
+    ],
+    "48": [
+      "spec.on('end')"
+    ],
+    "56": [
+      "gulp.task('setupEnvVars')"
+    ],
+    "57": [
+      "gulp.task('build-coverage')"
+    ],
+    "58": [
+      "gulp.task('specs')"
+    ],
+    "61": [
+      "gulp.on('error')"
+    ]
+  },
+  "lib/middleware/access-logger.js": {
+    "7": [
+      "debug('initializing access logger middleware')"
+    ],
+    "14": [
+      "debug('req: %s %s, token: %o', ... )"
+    ],
+    "17": [
+      "debug('req')"
+    ],
+    "28": [
+      "res.on('finish')"
+    ],
+    "32": [
+      "debug('res %s %s: %o', ... )"
+    ]
+  },
+  "lib/middleware/user-context.js": {
+    "8": [
+      "debug('initializing user context middleware')"
+    ],
+    "16": [
+      "debug('No user context (loopback current context not found)')"
+    ],
+    "21": [
+      "debug('No user context (access token not found)')"
+    ],
+    "33": [
+      "Error('No user with this access token was found.')"
+    ],
+    "35": [
+      "loopbackContext.set('currentUser')"
+    ],
+    "36": [
+      "loopbackContext.set('currentUserGroups')"
+    ],
+    "37": [
+      "debug('currentUser')"
+    ],
+    "38": [
+      "debug('currentUserGroups')"
+    ]
+  },
+  "lib/mixins/get-current-user.js": {
+    "7": [
+      "debug('initializing GetCurrentUser Mixin for model %s', ... )"
+    ],
+    "11": [
+      "ctx.get('currentUser')"
+    ]
+  },
+  "lib/models/ProductPricing.js": {
+    "31": [
+      "productPricingModel.observe('before save')"
+    ],
+    "42": [
+      "g.f('getting user from context %s', ... )"
+    ],
+    "44": [
+      "debug('context instance does not exist.')"
+    ]
+  },
+  "lib/models/index.js": {
+    "8": [
+      "debug('initializing component')"
+    ],
+    "20": [
+      "debug('User model: %s', ... )"
+    ],
+    "23": [
+      "debug('Venue model: %s', ... )"
+    ],
+    "26": [
+      "app.middleware('auth:after')"
+    ],
+    "27": [
+      "app.middleware('routes:before')"
+    ],
+    "39": [
+      "debug('users.find(')"
+    ],
+    "48": [
+      "debug('users.findByUsername(')"
+    ],
+    "57": [
+      "debug('users.findByUsernameOrEmail(')"
+    ],
+    "69": [
+      "debug('users.save(')"
+    ]
+  }
+}

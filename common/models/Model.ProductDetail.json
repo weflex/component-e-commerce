@@ -1,0 +1,85 @@
+{
+  "name": "ProductDetail",
+  "base": "PersistedModel",
+  "indexes": {
+    "unique_product_detail": {
+      "keys": {
+        "productId": 1,
+        "locale": 2
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
+  "plural": "product-detail",
+  "strict": true,
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "productName": {
+      "type": "String",
+      "required": true
+    },
+    "productDescription": {
+      "type": "String"
+    },
+    "brandId": {
+      "type": "String",
+      "required": true
+    },
+    "attributes": {
+      "type": "Object"
+    },
+    "locale": {
+      "type": "String",
+      "required": true,
+      "default": "zh"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "brand": {
+      "type": "belongsTo",
+      "model": "Brand",
+      "property": "brandId",
+      "options": {
+        "validate": true
+      }
+    },
+    "product": {
+      "type": "belongsTo",
+      "model": "Product",
+      "foreignKey": "productId",
+      "options": {
+        "validate": true
+      }
+    },
+    "productAttribute": {
+      "type": "embedsOne",
+      "model": "ProductAttribute",
+      "property": "attributes",
+      "options": {
+        "validate": true,
+        "forceId": false
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

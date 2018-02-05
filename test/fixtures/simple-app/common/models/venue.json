@@ -1,0 +1,17 @@
+{
+  "name": "Venue",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "venues",
+  "strict": true,
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "String",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "name": "TransactionDetail",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "transaction-detail",
+  "strict": true,
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "productId": {
+      "type": "String",
+      "required": true
+    },
+    "productPricingId": {
+      "type": "String",
+      "required": true
+    },
+    "transactionId": {
+      "type": "String",
+      "required": true
+    },
+    "quantity": {
+      "type": "Number",
+      "default": 1,
+      "required": true
+    },
+    "discount": {
+      "type": "Number"
+    },
+    "subTotal": {
+      "type": "Number",
+      "required": true
+    },
+    "netTotal": {
+      "type": "Number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "product": {
+      "type": "belongsTo",
+      "model": "Product",
+      "property": "productId",
+      "options": {
+        "validate": true
+      }
+    },
+    "productPricing": {
+      "type": "belongsTo",
+      "model": "ProductPricing",
+      "property": "productPricingId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

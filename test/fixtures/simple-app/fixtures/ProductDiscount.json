@@ -1,0 +1,35 @@
+[
+  {
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "createdBy": "venue1Owner",
+    "venueId": "1",
+    "discountId": "1",
+    "productId": "1",
+    "startDate": "2018-01-18T13:49:22.205Z",
+    "endDate": null,
+    "deletedAt": null,
+    "deletedBy": null
+  },
+  {
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "createdBy": "venue1Owner",
+    "venueId": "1",
+    "discountId": "2",
+    "productId": "1",
+    "startDate": "2018-01-18T13:49:22.205Z",
+    "endDate": null,
+    "deletedAt": null,
+    "deletedBy": null
+  },
+  {
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "createdBy": "venue1Owner",
+    "venueId": "1",
+    "discountId": "2",
+    "productId": "2",
+    "startDate": "2018-01-18T13:49:22.205Z",
+    "endDate": "2018-02-18T13:49:22.205Z",
+    "deletedAt": null,
+    "deletedBy": null
+  }
+]

@@ -1,0 +1,95 @@
+{
+  "build-coverage": [
+    "gulp.task:gulpfile.js:57"
+  ],
+  "end": [
+    "spec.on:gulpfile.js:48"
+  ],
+  "error": [
+    "gulp.on:gulpfile.js:61"
+  ],
+  "setupEnvVars": [
+    "gulp.task:gulpfile.js:56"
+  ],
+  "specs": [
+    "gulp.task:gulpfile.js:58"
+  ],
+  "test/spec/test-*.js": [
+    "gulp.src:gulpfile.js:15"
+  ],
+  "finish": [
+    "res.on:lib/middleware/access-logger.js:28"
+  ],
+  "initializing access logger middleware": [
+    "debug:lib/middleware/access-logger.js:7"
+  ],
+  "req": [
+    "debug:lib/middleware/access-logger.js:17"
+  ],
+  "req: %s %s, token: %o": [
+    "debug:lib/middleware/access-logger.js:14"
+  ],
+  "res %s %s: %o": [
+    "debug:lib/middleware/access-logger.js:32"
+  ],
+  "No user context (access token not found)": [
+    "debug:lib/middleware/user-context.js:21"
+  ],
+  "No user context (loopback current context not found)": [
+    "debug:lib/middleware/user-context.js:16"
+  ],
+  "No user with this access token was found.": [
+    "Error:lib/middleware/user-context.js:33"
+  ],
+  "currentUser": [
+    "loopbackContext.set:lib/middleware/user-context.js:35",
+    "debug:lib/middleware/user-context.js:37",
+    "ctx.get:lib/mixins/get-current-user.js:11"
+  ],
+  "currentUserGroups": [
+    "loopbackContext.set:lib/middleware/user-context.js:36",
+    "debug:lib/middleware/user-context.js:38"
+  ],
+  "initializing user context middleware": [
+    "debug:lib/middleware/user-context.js:8"
+  ],
+  "initializing GetCurrentUser Mixin for model %s": [
+    "debug:lib/mixins/get-current-user.js:7"
+  ],
+  "before save": [
+    "productPricingModel.observe:lib/models/ProductPricing.js:31"
+  ],
+  "context instance does not exist.": [
+    "debug:lib/models/ProductPricing.js:44"
+  ],
+  "getting user from context %s": [
+    "g.f:lib/models/ProductPricing.js:42"
+  ],
+  "User model: %s": [
+    "debug:lib/models/index.js:20"
+  ],
+  "Venue model: %s": [
+    "debug:lib/models/index.js:23"
+  ],
+  "auth:after": [
+    "app.middleware:lib/models/index.js:26"
+  ],
+  "initializing component": [
+    "debug:lib/models/index.js:8"
+  ],
+  "routes:before": [
+    "app.middleware:lib/models/index.js:27"
+  ],
+  "users.find(": [
+    "debug:lib/models/index.js:39"
+  ],
+  "users.findByUsername(": [
+    "debug:lib/models/index.js:48"
+  ],
+  "users.findByUsernameOrEmail(": [
+    "debug:lib/models/index.js:57"
+  ],
+  "users.save(": [
+    "debug:lib/models/index.js:69"
+  ]
+}

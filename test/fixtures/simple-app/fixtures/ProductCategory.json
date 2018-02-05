@@ -1,0 +1,19 @@
+[
+  {
+    "createdBy": "venue1Member",
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "modifiedAt": null,
+    "venueId": 1,
+    "productCategoryDetail": [
+      {
+        "category": "Class Packages",
+        "locale": "en"
+      },
+      {
+        "category": "类包",
+        "locale": "zh"
+      }
+    ],
+    "isEnabled": false
+  }
+]
