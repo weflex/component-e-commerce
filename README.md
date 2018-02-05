@@ -24,3 +24,123 @@ We can categorise payments into two major channels.
 | TransactionStatusDetail  | Transaction status detail is stored separately to help with internationalization by storing product name and description with corresponding `locale` data.
 | Transaction              | When a user buys an item, they will create a transaction which may have many products.
 | TransactionDetail        | A cart contains different products a user bought during a transaction.
+
+## Usage
+
+- Add dependency to your loopback project's package.json
+
+```
+  "component-commerce": "^1.0.0",
+```
+
+- Add models to server/model-config.json
+
+```
+  "_meta": {
+    "sources": [
+      "../common/models",
+      ...
+      ...
+      "../node_modules/component-commerce/common/models"
+    ]
+  },
+  "PaymentType": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ProductCategory": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ProductCategoryDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Brand": {
+    "dataSource": "db",
+    "public": true
+  },
+  "BrandDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Product": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ProductDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ProductPricing": {
+    "dataSource": "db",
+    "public": true
+  },
+  "TransactionStatus": {
+    "dataSource": "db",
+    "public": true
+  },
+  "TransactionStatusDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Transaction": {
+    "dataSource": "db",
+    "public": true
+  },
+  "TransactionDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "VenuePaymentConfig": {
+    "dataSource": "db",
+    "public": true
+  },
+  "CardDepositHistory": {
+    "dataSource": "db",
+    "public": true
+  },
+  "CardBalance": {
+    "dataSource": "db",
+    "public": true
+  },
+  "DiscountType": {
+    "dataSource": "db",
+    "public": true
+  },
+  "DiscountTypeDetail": {
+    "dataSource": "db",
+    "public": true
+  },
+  "Discount": {
+    "dataSource": "db",
+    "public": true
+  },
+  "ProductDiscount": {
+    "dataSource": "db",
+    "public": true
+  },
+  "TransactionDiscount": {
+    "dataSource": "db",
+    "public": true
+  },
+```
+
+- Add a boot script to server/boot/commerce.js
+
+```
+module.exports = function commerce(app) {
+  var commerce = require('../../node_modules/component-commerce/lib'); // specify relative path
+
+  var options = {
+    // custom user model
+    userModel: 'user', // specify your custom user model
+    venueModel: 'Venue', // specify your custom venue model
+
+    // used by modelBuilder, component-issue-handler/lib/models/index.js
+    // Data source for metadata persistence
+    dataSource: app.dataSources.db, // specify your datasource
+  };
+  commerce(app, options);
+};
+```
