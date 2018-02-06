@@ -79,8 +79,8 @@
     },
     "paymentType": {
       "type": "belongsTo",
-      "model": "PaymentType",
-      "foreignKey": "paymentTypeId",
+      "model": "VenuePaymentConfig",
+      "property": "venuePaymentConfigId",
       "options": {
         "validate": true
       }

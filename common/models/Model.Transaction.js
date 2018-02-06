@@ -32,31 +32,32 @@ module.exports = function(Model) {
     function isPaymentTypeEnabled(err, next) {
       const VenuePaymentConfig = app.models.VenuePaymentConfig;
       const PaymentType = app.models.PaymentType;
-      if (!this.venueId || !this.paymentTypeId) {
+      if (!this.paymentTypeId || !this.venueId) {
         err();
       }
-      PaymentType.findById(this.paymentTypeId,
-        (err1, paymentType) => {
-          VenuePaymentConfig.findOne({
-            where: {
-              paymentTypeId: this.paymentTypeId,
-              venueId: this.venueId,
-            },
-          }, (err2, venuePaymentConfig) => {
-            if (
-              err1 || err2 || venuePaymentConfig === null ||
+      VenuePaymentConfig.findById(this.paymentTypeId,
+        (err2, venuePaymentConfig) => {
+          if (null !== venuePaymentConfig) {
+            PaymentType.findById(venuePaymentConfig.paymentTypeId,
+              (err1, paymentType) => {
+                if (
+                  err1 || err2 || venuePaymentConfig === null ||
               paymentType === null
-            ) {
-              err();
-            }
-            if (
-              (venuePaymentConfig && !venuePaymentConfig.isEnabled) ||
+                ) {
+                  err();
+                }
+                if (
+                  (venuePaymentConfig && !venuePaymentConfig.isEnabled) ||
               (paymentType && !paymentType.isEnabled)
-            ) {
-              err();
-            }
+                ) {
+                  err();
+                }
+                next();
+              });
+          } else {
+            err();
             next();
-          });
+          }
         });
     }
 
@@ -123,10 +124,38 @@ module.exports = function(Model) {
           ctx.instance.transactionStatusId = '1';
         }
       }
+      // add transaction discount to the promise chain
+      let promise =
+        app
+          .models
+          .TransactionDiscount
+          .getTransactionDiscounts(ctx, ctx.instance.__data['venueId']);
+      promises.push(promise);
+
       /* istanbul ignore next */
       Promise.all(promises)
         .then((result) => {
           let totalDiscount = 0;
+
+          // check if any transaction discounts are applied
+          // Transaction discounts take precedence over product discounts,
+          // thus it should make all product discounts 0
+          let totalQty = 0;
+          totalQty = ctx.instance.__data['qty'].reduce((totalQty, qty) => {
+            return totalQty + qty;
+          });
+          // initalize counter
+          let cntr = 0;
+          let totalPrice = 0;
+          totalPrice = ctx.instance.__data['price'].reduce(
+            (totalPrice, price) => {
+              return totalPrice + (ctx.instance.__data['qty'][cntr] * price);
+              cntr++;
+            });
+
+          let transactionDiscount = ctx.instance.__data['transactionDiscount'];
+          // iterate over each product price
+          // and calculate subTotal, qty, product discount, and netTotal
           ctx.instance.__data['price'].forEach((price, item) => {
             let appliedDiscount = 0;
             let subTotal = price * ctx.instance.__data['qty'][item];
@@ -139,17 +168,15 @@ module.exports = function(Model) {
               subTotal - appliedDiscount;
             ctx.instance.totalPrice += subTotal;
             ctx.instance.totalDiscount += appliedDiscount;
-            // TODO: @prashant
+
             // Calculate grandTotal by subtracting discount from totalPrice
             ctx.instance.grandTotal =
               ctx.instance.totalPrice - ctx.instance.totalDiscount;
             item++;
           });
-          // console.log(ctx.hookState.relations['transactionDetail']);
           delete ctx.instance.__data['price'];
           delete ctx.instance.__data['qty'];
           delete ctx.instance.__data['discount'];
-          // console.log(ctx.instance.__data);
           next();
         })
         .catch(err => {
@@ -204,7 +231,6 @@ module.exports = function(Model) {
         if (null !== instance) {
           let discount = 0;
           const data = instance.toJSON();
-          console.log(data);
           ctx.instance.__data['price'].push(data.productPricing[0].unitPrice);
           ctx.instance.__data['qty'].push(detail.quantity);
           if (data.productDiscount.length > 0) {
@@ -212,8 +238,7 @@ module.exports = function(Model) {
               data.productPricing[0],
               data.productDiscount[0].discount,
               detail.quantity,
-              ctx.instance.__data['boughtBy'],
-              detail.productId
+              ctx.instance.__data['boughtBy']
             );
           }
           ctx.instance.__data['discount'].push(discount);

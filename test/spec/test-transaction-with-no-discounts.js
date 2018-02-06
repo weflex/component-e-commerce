@@ -9,7 +9,7 @@ let app = require(path.join(SIMPLE_APP, 'server/server.js'));
 const transactionFixtureHelper =
   require(path.join(__dirname, 'helpers/transaction'))();
 
-describe('Transaction', () => {
+describe('Transaction with no discounts existing in the system', () => {
   describe('When user not in context', () => {
     it('Add transaction should return 401', (next) => {
       fixtures.forEach((transaction) => {
@@ -40,7 +40,7 @@ describe('Transaction', () => {
   describe('When user in context', () => {
     let token = null;
     beforeAll((next) => {
-      transactionFixtureHelper.setupFixtures(app);
+      transactionFixtureHelper.setupFixturesWithoutDiscounts(app);
       request(app)
         .post('/api/users/login')
         .set('Accept', 'application/json')
@@ -161,8 +161,8 @@ describe('Transaction', () => {
               transactionId: 1,
               quantity: 3,
               subTotal: 3000,
-              discount: 600,
-              netTotal: 2400,
+              discount: 0,
+              netTotal: 3000,
               id: 1,
             },
             {
@@ -171,8 +171,8 @@ describe('Transaction', () => {
               transactionId: 1,
               quantity: 1,
               subTotal: 1001,
-              discount: 200.2,
-              netTotal: 800.8,
+              discount: 0,
+              netTotal: 1001,
               id: 2,
             },
           ]);
@@ -196,80 +196,81 @@ describe('Transaction', () => {
       });
     });
   });
+});
 
-  describe('Remote method', () => {
-    let token = null;
-    beforeAll((next) => {
-      request(app)
-        .post('/api/users/login')
-        .set('Accept', 'application/json')
-        .send({
-          username: 'generalUser',
-          password: 'password',
-        })
-        .expect(200, (err, res) => {
-          expect(err).toBe(null);
-          token = res.body.id;
-          expect(res.body.userId).toEqual(2);
-          next();
-        });
-    });
-
-    afterAll((next) => {
-      const loopbackContext = LoopBackContext.getCurrentContext();
-      loopbackContext.set('currentUser', null);
-      next();
-    });
-
-    it('List transaction should return transaction with all related details',
-      (next) => {
-        LoopBackContext.runInContext(() => {
-          request(app)
-            .get('/api/transaction/1/details')
-            .set('Accept', 'application/json')
-            .query({'access_token': token})
-            .expect(200, (err, res) => {
-              let transactionDetail = res.body.transaction.transactionDetail[0];
-              expect(err).toBe(null);
-              expect(res.body).not.toBe(null);
-              delete transactionDetail.product.createdBy;
-              delete transactionDetail.product.createdAt;
-              delete transactionDetail.product.modifiedBy;
-              delete transactionDetail.product.modifiedAt;
-              delete transactionDetail.product.deletedBy;
-              delete transactionDetail.product.deletedAt;
-              delete transactionDetail.productPricing.createdBy;
-              delete transactionDetail.productPricing.createdAt;
-              expect(transactionDetail).toEqual(
-                {
-                  productId: 1,
-                  productPricingId: 1,
-                  transactionId: 1,
-                  quantity: 3,
-                  subTotal: 3000,
-                  discount: 600,
-                  netTotal: 2400,
-                  id: 1,
-                  product: {
-                    productCode: 'P4',
-                    venueId: 1,
-                    isAvailable: true,
-                    id: 1,
-                    canUseToPay: true,
-                    expiresAt: '2018-01-24T13:49:22.205Z',
-                  },
-                  productPricing: {
-                    unitPrice: 1000,
-                    currency: 'CNY',
-                    id: 1,
-                    venueId: 1,
-                    productId: 1,
-                  },
-                },
-              );
-              next();
-            });
-        });
+describe('Remote method', () => {
+  let token = null;
+  beforeAll((next) => {
+    request(app)
+      .post('/api/users/login')
+      .set('Accept', 'application/json')
+      .send({
+        username: 'generalUser',
+        password: 'password',
+      })
+      .expect(200, (err, res) => {
+        expect(err).toBe(null);
+        token = res.body.id;
+        expect(res.body.userId).toEqual(2);
+        next();
       });
   });
+
+  afterAll((next) => {
+    const loopbackContext = LoopBackContext.getCurrentContext();
+    loopbackContext.set('currentUser', null);
+    transactionFixtureHelper.teardownFixtures(app);
+    next();
+  });
+
+  it('List transaction should return transaction with all related details',
+    (next) => {
+      LoopBackContext.runInContext(() => {
+        request(app)
+          .get('/api/transaction/1/details')
+          .set('Accept', 'application/json')
+          .query({'access_token': token})
+          .expect(200, (err, res) => {
+            let transactionDetail = res.body.transaction.transactionDetail[0];
+            expect(err).toBe(null);
+            expect(res.body).not.toBe(null);
+            delete transactionDetail.product.createdBy;
+            delete transactionDetail.product.createdAt;
+            delete transactionDetail.product.modifiedBy;
+            delete transactionDetail.product.modifiedAt;
+            delete transactionDetail.product.deletedBy;
+            delete transactionDetail.product.deletedAt;
+            delete transactionDetail.productPricing.createdBy;
+            delete transactionDetail.productPricing.createdAt;
+            expect(transactionDetail).toEqual(
+              {
+                productId: 1,
+                productPricingId: 1,
+                transactionId: 1,
+                quantity: 3,
+                subTotal: 3000,
+                discount: 0,
+                netTotal: 3000,
+                id: 1,
+                product: {
+                  productCode: 'P4',
+                  venueId: 1,
+                  isAvailable: true,
+                  id: 1,
+                  canUseToPay: true,
+                  expiresAt: '2018-01-24T13:49:22.205Z',
+                },
+                productPricing: {
+                  unitPrice: 1000,
+                  currency: 'CNY',
+                  id: 1,
+                  venueId: 1,
+                  productId: 1,
+                },
+              },
+            );
+            next();
+          });
+      });
+    });
 });

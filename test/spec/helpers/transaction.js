@@ -25,28 +25,33 @@ const productDiscountFixtures =
 const fixtures = require(path.join(SIMPLE_APP, 'fixtures/Transaction'));
 
 module.exports = function() {
-  function setupFixtures(app) {
-    console.log('hello');
-    app.dataSources.db.automigrate(['ProductPricing']);
-    // userFixtures.forEach((user) => {
-    //   app.models.user.create(user);
-    // });
-    // paymentTypeFixtures.forEach((paymentType) => {
-    //   app.models.PaymentType.create(paymentType);
-    // });
-    // transactionStatusFixtures.forEach((transactionStatus) => {
-    //   app.models.TransactionStatus.create(transactionStatus);
-    // });
-    // venueFixtures.forEach((venue) => {
-    //   app.models.Venue.create(venue);
-    // });
-    // brandFixtures.forEach((brand) => {
-    //   console.log(brand);
-    //   app.models.Brand.create(brand);
-    // });
-    // productCategoryFixtures.forEach((productCategory) => {
-    //   app.models.ProductCategory.create(productCategory);
-    // });
+  function setupFixturesWithoutDiscounts(app) {
+    const resetModels = [
+      'ProductPricing',
+      'Transaction',
+      'TransactionDetail',
+      'VenuePaymentConfig',
+    ];
+    app.dataSources.db.automigrate(resetModels);
+    venueFixtures.forEach((venue) => {
+      app.models.Venue.create(venue);
+    });
+    productPricingFixtures.forEach((productPricing) => {
+      app.models.ProductPricing.create(productPricing);
+    });
+    venuePaymentConfigFixtures.forEach((venuePaymenConfig) => {
+      app.models.VenuePaymentConfig.create(venuePaymenConfig);
+    });
+  };
+
+  function setupFixturesWithProductDiscount(app) {
+    const resetModels = [
+      'ProductPricing',
+      'Transaction',
+      'TransactionDetail',
+      'VenuePaymentConfig',
+    ];
+    app.dataSources.db.automigrate(resetModels);
     productPricingFixtures.forEach((productPricing) => {
       app.models.ProductPricing.create(productPricing);
     });
@@ -62,11 +67,16 @@ module.exports = function() {
   };
 
   function teardownFixtures(app) {
-    // app.dataSources.db.automigrate();
+    const resetModels = [
+      // 'Transaction',
+      // 'TransactionDetail',
+    ];
+    app.dataSources.db.automigrate(resetModels);
   };
 
   return {
-    setupFixtures: setupFixtures,
+    setupFixturesWithoutDiscounts: setupFixturesWithoutDiscounts,
+    setupFixturesWithProductDiscount: setupFixturesWithProductDiscount,
     teardownFixtures: teardownFixtures,
   };
 };

@@ -10,6 +10,10 @@
   },
   "replaceOnPUT": true,
   "properties": {
+    "paymentTypeId": {
+      "type": "String",
+      "required": true
+    },
     "createdBy": {
       "type": "String",
       "required": true
@@ -58,7 +62,7 @@
     "paymentType": {
       "type": "belongsTo",
       "model": "PaymentType",
-      "foreignKey": "paymentTypeId",
+      "property": "paymentTypeId",
       "options": {
         "validate": true
       }

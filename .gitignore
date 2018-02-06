@@ -56,3 +56,6 @@ typings/
 
 # dotenv environment variables file
 .env
+
+# generated database file when running tests
+commerce-db.json

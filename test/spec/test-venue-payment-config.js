@@ -6,17 +6,17 @@ const LoopBackContext = require('loopback-context');
 const SIMPLE_APP = path.join(__dirname, '..', 'fixtures', 'simple-app');
 const fixtures = require(path.join(SIMPLE_APP, 'fixtures/VenuePaymentConfig'));
 let app = require(path.join(SIMPLE_APP, 'server/server.js'));
+const venuePaymentConfigFixtureHelper =
+  require(path.join(__dirname, 'helpers/venue-payment-config'))();
 
 describe('Venue payment config', () => {
   beforeAll((next) => {
-    app.models.VenuePaymentConfig.destroyAll((err, info) => {
-      if (err) {
-        console.log('An error occured when removing fixtures data');
-        console.log(err);
-        next(err);
-      }
-      next();
-    });
+    venuePaymentConfigFixtureHelper.setupFixtures(app);
+    next();
+  });
+  afterAll((next) => {
+    venuePaymentConfigFixtureHelper.teardownFixtures(app);
+    next();
   });
 
   describe('When user not in context', () => {
