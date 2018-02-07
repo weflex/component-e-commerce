@@ -1,5 +1,6 @@
 
 const jugglerUtils = require('loopback-datasource-juggler/lib/utils');
+const discountTypes = require('../../lib/helpers/DiscountTypes');
 
 /**
  * Merge include options of default scope with runtime include option.
@@ -114,6 +115,11 @@ module.exports = function(Model) {
         ctx.instance.__data['qty'] = [];
         // this collection would hold the discount for each product
         ctx.instance.__data['discount'] = [];
+        // this collection would hold the isMembershipDiscount for each product
+        // as it is required to update the product discount based on if the
+        // member who bought the item has membership or not
+        ctx.instance.__data['isMembershipDiscount'] = [];
+        ctx.instance.__data['hasMembership'] = false;
         let transactionDetail = ctx.hookState.relations['transactionDetail'];
         transactionDetail.forEach((detail) => {
           let promise = getProductPriceFromTransactionDetail(ctx, detail);
@@ -124,8 +130,10 @@ module.exports = function(Model) {
           ctx.instance.transactionStatusId = '1';
         }
       }
+      let promise = isMember(ctx, ctx.instance.boughtBy, ctx.instance.venueId);
+      promises.push(promise);
       // add transaction discount to the promise chain
-      let promise =
+      promise =
         app
           .models
           .TransactionDiscount
@@ -159,6 +167,11 @@ module.exports = function(Model) {
           ctx.instance.__data['price'].forEach((price, item) => {
             let appliedDiscount = 0;
             let subTotal = price * ctx.instance.__data['qty'][item];
+            if (ctx.instance.__data['isMembershipDiscount'][item] &&
+              ctx.instance.__data['hasMembership'] === false
+            ) {
+              ctx.instance.__data['discount'][item] = 0;
+            }
             appliedDiscount += ctx.instance.__data['discount'][item];
             ctx.hookState.relations['transactionDetail'][item]['subTotal'] =
               subTotal;
@@ -228,18 +241,25 @@ module.exports = function(Model) {
           },
         ],
       }, (err, instance) => {
+        let discount = 0;
         if (null !== instance) {
-          let discount = 0;
           const data = instance.toJSON();
           ctx.instance.__data['price'].push(data.productPricing[0].unitPrice);
           ctx.instance.__data['qty'].push(detail.quantity);
           if (data.productDiscount.length > 0) {
+            const discountTypeId = data.productDiscount[0].discount.discountTypeId; // eslint-disable-line
             discount = app.models.Discount.getProductDiscounts(
               data.productPricing[0],
               data.productDiscount[0].discount,
               detail.quantity,
               ctx.instance.__data['boughtBy']
             );
+            if (discountTypeId ===
+              discountTypes.DISCOUNT_TYPE_MEMBERSHIP_PRICE_OFF) {
+              ctx.instance.__data['isMembershipDiscount'].push(true);
+            } else {
+              ctx.instance.__data['isMembershipDiscount'].push(false);
+            }
           }
           ctx.instance.__data['discount'].push(discount);
         }
@@ -247,6 +267,28 @@ module.exports = function(Model) {
       });
       return promise;
     }
+
+    function isMember(ctx, boughtBy, venueId) {
+      return app.models.CardBalance.findOne({
+        where: {
+          cardOwner: boughtBy,
+          venueId: venueId,
+        },
+        include: {
+          relation: 'membership',
+        },
+        order: 'id DESC',
+      }, (err, instance) => {
+        if (null !== instance) {
+          const data  = instance.toJSON();
+          if (data.membership.expiresAt === null ||
+            data.membership.expiresAt > Date.now()) {
+            ctx.instance.__data['hasMembership'] = true;
+          }
+        }
+        return ctx;
+      });
+    };
 
     Model.observe('after save', (ctx, next) => {
       const promises = [];
@@ -315,6 +357,7 @@ module.exports = function(Model) {
                 depositValue: detail.subTotal,
                 membershipCard: detail.productId,
                 createdAt: new Date(),
+                venueId: transaction.venueId,
               };
               app.models.CardDepositHistory.create(data);
             }

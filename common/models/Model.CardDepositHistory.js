@@ -48,6 +48,7 @@ module.exports = function(Model) {
           balance: ctx.instance.depositValue,
           cardOwner: ctx.instance.cardOwner,
           membershipCard: ctx.instance.membershipCard,
+          venueId: ctx.instance.venueId,
         };
         addOrUpdateBalance(balanceData, next);
       }

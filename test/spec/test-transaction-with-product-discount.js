@@ -247,7 +247,7 @@ describe('Transaction with product discount', () => {
 
     it('Add transaction with flat discount should return 200', (next) => {
       const txn = {
-        boughtBy: 'venue2Member',
+        boughtBy: '2',
         boughtAt: '2018-01-19T13:49:22.205Z',
         currency: 'CNY',
         venueId: '1',
@@ -388,7 +388,7 @@ describe('Transaction with product discount', () => {
     it('Add transaction with flat discount with minQty should return 200',
       (next) => {
         const txn = {
-          boughtBy: 'venue2Member',
+          boughtBy: '2',
           boughtAt: '2018-01-19T13:49:22.205Z',
           currency: 'CNY',
           venueId: '1',
@@ -482,7 +482,7 @@ describe('Transaction with product discount', () => {
     it('Add transaction with flat discount with less than minQty should return 200', // eslint-disable-line
       (next) => {
         const txn = {
-          boughtBy: 'venue2Member',
+          boughtBy: '2',
           boughtAt: '2018-01-19T13:49:22.205Z',
           currency: 'CNY',
           venueId: '1',
@@ -623,7 +623,7 @@ describe('Transaction with product discount', () => {
 
     it('Add transaction with percentage discount should return 200', (next) => {
       const txn = {
-        boughtBy: 'venue2Member',
+        boughtBy: '2',
         boughtAt: '2018-01-19T13:49:22.205Z',
         currency: 'CNY',
         venueId: '1',
@@ -717,7 +717,7 @@ describe('Transaction with product discount', () => {
     it('Add transaction with percentage discount with less than minQty should return 200', // eslint-disable-line
       (next) => {
         const txn = {
-          boughtBy: 'venue2Member',
+          boughtBy: '2',
           boughtAt: '2018-01-19T13:49:22.205Z',
           currency: 'CNY',
           venueId: '1',
@@ -809,6 +809,241 @@ describe('Transaction with product discount', () => {
     });
   });
 
+  describe('Membership discount', () => {
+    let token = null;
+    beforeAll((next) => {
+      request(app)
+        .post('/api/users/login')
+        .set('Accept', 'application/json')
+        .send({
+          username: 'generalUser',
+          password: 'password',
+        })
+        .expect(200, (err, res) => {
+          expect(err).toBe(null);
+          token = res.body.id;
+          expect(res.body.userId).toEqual(2);
+          app.models.Discount.create({
+            discountTypeId: '6',
+            venueId: '1',
+            createdBy: 'venue1Owner',
+            createdAt: '2018-01-18T13:49:22.205Z',
+            flatPrice: null,
+            pctOfPrice: null,
+            minTxnAmt: null,
+            minQty: null,
+            memberPriceOff: 300,
+            modifiedBy: null,
+            modifiedAt: null,
+            deletedAt: null,
+            deletedBy: null,
+          });
+          // add a ProductDiscount
+          app.models.ProductDiscount.create({
+            createdAt: '2018-01-18T13:49:22.205Z',
+            createdBy: 'venue1Owner',
+            venueId: '1',
+            discountId: '10',
+            productId: '1',
+            startDate: '2018-01-18T13:49:22.205Z',
+            endDate: null,
+            deletedBy: null,
+            deletedAt: null,
+          }, (err, models) => {
+            next();
+          });
+        });
+    });
+
+    it('Add transaction with membership discount should return 200', (next) => {
+      const txn = {
+        boughtBy: '2',
+        boughtAt: '2018-01-19T13:49:22.205Z',
+        currency: 'CNY',
+        venueId: '1',
+        transactionDetail: [
+          {
+            quantity: 3,
+            productId: '1',
+            productPricingId: '1',
+          },
+          {
+            quantity: 1,
+            productId: '2',
+            productPricingId: '2',
+          },
+        ],
+        transactionStatusId: '1',
+        paymentTypeId: '4',
+      };
+      request(app)
+        .post('/api/transaction')
+        .set('Accept', 'application/json')
+        .query({'access_token': token})
+        .send(txn)
+        .expect(200, (err, res) => {
+          expect(err).toBe(null);
+          expect(res.body).not.toBe(null);
+          next(); // TODO: @prashant, why it doesn't call callback here?
+        });
+      next();
+    });
+
+    it('List transaction should return transaction with details when include filter exists', // eslint-disable-line
+      (next) => {
+        request(app)
+          .get('/api/transaction')
+          .set('Accept', 'application/json')
+          .query({
+            'access_token': token,
+            filter: {
+              include: 'transactionDetail',
+            },
+          })
+          .expect(200, (err, res) => {
+            expect(err).toBe(null);
+            expect(res.body).not.toBe(null);
+            next();
+          });
+      });
+
+    it('List transaction should return transaction with details', (next) => {
+      request(app)
+        .get('/api/transaction')
+        .set('Accept', 'application/json')
+        .query({
+          'access_token': token,
+        })
+        .expect(200, (err, res) => {
+          let response = res.body[8];
+          let transactionDetail = response.transactionDetail;
+          expect(err).toBe(null);
+          expect(res.body).not.toBe(null);
+          expect(res.body.length).toEqual(9);
+          expect(transactionDetail).toEqual([
+            {
+              productId: 1,
+              productPricingId: 1,
+              transactionId: 9,
+              quantity: 3,
+              subTotal: 3000,
+              discount: 900,
+              netTotal: 2100,
+              id: 15,
+            },
+            {
+              productId: 2,
+              productPricingId: 2,
+              transactionId: 9,
+              quantity: 1,
+              subTotal: 1001,
+              discount: 0,
+              netTotal: 1001,
+              id: 16,
+            },
+          ]);
+          expect(response.totalDiscount).toEqual(900);
+          expect(response.grandTotal).toEqual(3101);
+          next();
+        });
+    });
+
+    it('Add transaction with membership discount when no membership should return 200', // eslint-disable-line
+      (next) => {
+        app.models.CardBalance.destroyAll();
+        const txn = {
+          boughtBy: '2',
+          boughtAt: '2018-01-19T13:49:22.205Z',
+          currency: 'CNY',
+          venueId: '1',
+          transactionDetail: [
+            {
+              quantity: 3,
+              productId: '1',
+              productPricingId: '1',
+            },
+            {
+              quantity: 1,
+              productId: '2',
+              productPricingId: '2',
+            },
+          ],
+          transactionStatusId: '1',
+          paymentTypeId: '4',
+        };
+        request(app)
+          .post('/api/transaction')
+          .set('Accept', 'application/json')
+          .query({'access_token': token})
+          .send(txn)
+          .expect(200, (err, res) => {
+            expect(err).toBe(null);
+            expect(res.body).not.toBe(null);
+            next(); // TODO: @prashant, why it doesn't call callback here?
+          });
+        next();
+      });
+
+    it('List transaction should return transaction with details when include filter exists', // eslint-disable-line
+      (next) => {
+        request(app)
+          .get('/api/transaction')
+          .set('Accept', 'application/json')
+          .query({
+            'access_token': token,
+            filter: {
+              include: 'transactionDetail',
+            },
+          })
+          .expect(200, (err, res) => {
+            expect(err).toBe(null);
+            expect(res.body).not.toBe(null);
+            next();
+          });
+      });
+
+    it('List transaction should return transaction with details', (next) => {
+      request(app)
+        .get('/api/transaction')
+        .set('Accept', 'application/json')
+        .query({
+          'access_token': token,
+        })
+        .expect(200, (err, res) => {
+          let response = res.body[9];
+          let transactionDetail = response.transactionDetail;
+          expect(err).toBe(null);
+          expect(res.body).not.toBe(null);
+          expect(res.body.length).toEqual(10);
+          expect(transactionDetail).toEqual([
+            {
+              productId: 1,
+              productPricingId: 1,
+              transactionId: 10,
+              quantity: 3,
+              subTotal: 3000,
+              discount: 0,
+              netTotal: 3000,
+              id: 17,
+            },
+            {
+              productId: 2,
+              productPricingId: 2,
+              transactionId: 10,
+              quantity: 1,
+              subTotal: 1001,
+              discount: 0,
+              netTotal: 1001,
+              id: 18,
+            },
+          ]);
+          expect(response.totalDiscount).toEqual(0);
+          expect(response.grandTotal).toEqual(4001);
+          next();
+        });
+    });
+  });
+
   describe('Remote method', () => {
     let token = null;
     beforeAll((next) => {
@@ -837,7 +1072,7 @@ describe('Transaction with product discount', () => {
       (next) => {
         LoopBackContext.runInContext(() => {
           request(app)
-            .get('/api/transaction/1/details')
+            .get('/api/transaction/9/details')
             .set('Accept', 'application/json')
             .query({'access_token': token})
             .expect(200, (err, res) => {
@@ -856,19 +1091,19 @@ describe('Transaction with product discount', () => {
                 {
                   productId: 1,
                   productPricingId: 1,
-                  transactionId: 1,
+                  transactionId: 9,
                   quantity: 3,
                   subTotal: 3000,
-                  discount: 600,
-                  netTotal: 2400,
-                  id: 1,
+                  discount: 900,
+                  netTotal: 2100,
+                  id: 15,
                   product: {
                     productCode: 'P4',
                     venueId: 1,
                     isAvailable: true,
                     id: 1,
                     canUseToPay: true,
-                    expiresAt: '2018-01-24T13:49:22.205Z',
+                    expiresAt: '2018-02-24T13:49:22.205Z',
                   },
                   productPricing: {
                     unitPrice: 1000,

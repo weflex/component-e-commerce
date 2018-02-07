@@ -53,7 +53,15 @@
     "membership": {
       "type": "belongsTo",
       "model": "Product",
-      "property": "membershipCard",
+      "foreignKey": "membershipCard",
+      "options": {
+        "validate": true
+      }
+    },
+    "venue": {
+      "type": "belongsTo",
+      "model": "Venue",
+      "foreignKey": "venueId",
       "options": {
         "validate": true
       }

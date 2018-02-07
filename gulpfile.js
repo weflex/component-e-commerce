@@ -1,6 +1,5 @@
 
 const gulp = require('gulp');
-const babel = require('gulp-babel');
 const jasmine = require('gulp-jasmine');
 const istanbul = require('gulp-istanbul');
 const SpecReporter = require('jasmine-spec-reporter').SpecReporter;
@@ -34,13 +33,12 @@ function runSpecs() {
 
   if (argv.filter || argv.f) {
     spec = gulp.src(`test/spec/test\-${argv.filter || argv.f}*.js`)
-      .pipe(babel())
       .pipe(toJasmine);
     if (argv.coverage || argv.c) {
       spec = spec.pipe(istanbul.writeReports());
     }
   } else {
-    spec = all.pipe(babel()).pipe(toJasmine)
+    spec = all.pipe(toJasmine)
       .pipe(istanbul.writeReports())
       .pipe(istanbul.enforceThresholds({
         thresholds: {global: 30},

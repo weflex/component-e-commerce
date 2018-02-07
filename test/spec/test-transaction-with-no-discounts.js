@@ -258,7 +258,7 @@ describe('Remote method', () => {
                   isAvailable: true,
                   id: 1,
                   canUseToPay: true,
-                  expiresAt: '2018-01-24T13:49:22.205Z',
+                  expiresAt: '2018-02-24T13:49:22.205Z',
                 },
                 productPricing: {
                   unitPrice: 1000,

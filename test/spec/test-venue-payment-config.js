@@ -99,19 +99,36 @@ describe('Venue payment config', () => {
     });
 
     it('delete should return 404 Not Found', (next) => {
-      LoopBackContext.runInContext(() => {
+      request(app)
+        .delete('/api/payment-config/1')
+        .set('Accept', 'application/json')
+        .query({
+          'access_token': token,
+        })
+        .expect(404, (err, res) => {
+          expect(err).toBe(null);
+          expect(res.body).not.toBe(null);
+          next();
+        });
+    });
+
+    it('List should return transaction with details when include filter exists',
+      (next) => {
         request(app)
-          .delete('/api/payment-config/1')
+          .get('/api/payment-config')
           .set('Accept', 'application/json')
           .query({
             'access_token': token,
+            filter: {
+              include: 'paymentType',
+            },
           })
-          .expect(404, (err, res) => {
+          .expect(200, (err, res) => {
+            let response = res.body[0];
             expect(err).toBe(null);
-            expect(res.body).not.toBe(null);
+            expect(response.paymentType).not.toBe(null);
             next();
           });
       });
-    });
   });
 });
