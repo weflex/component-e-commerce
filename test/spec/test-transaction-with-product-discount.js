@@ -1044,6 +1044,203 @@ describe('Transaction with product discount', () => {
     });
   });
 
+  describe('Bonus product discount', () => {
+    let token = null;
+    beforeAll((next) => {
+      request(app)
+        .post('/api/users/login')
+        .set('Accept', 'application/json')
+        .send({
+          username: 'generalUser',
+          password: 'password',
+        })
+        .expect(200, (err, res) => {
+          expect(err).toBe(null);
+          token = res.body.id;
+          expect(res.body.userId).toEqual(2);
+          app.models.Discount.create({
+            discountTypeId: '3',
+            venueId: '1',
+            createdBy: 'venue1Owner',
+            createdAt: '2018-01-18T13:49:22.205Z',
+            flatPrice: null,
+            pctOfPrice: null,
+            minTxnAmt: null,
+            minQty: null,
+            memberPriceOff: null,
+            modifiedBy: null,
+            modifiedAt: null,
+            deletedAt: null,
+            deletedBy: null,
+          });
+          app.models.Discount.create({
+            discountTypeId: '3',
+            venueId: '1',
+            createdBy: 'venue1Owner',
+            createdAt: '2018-01-18T13:49:22.205Z',
+            flatPrice: null,
+            pctOfPrice: null,
+            minTxnAmt: null,
+            minQty: null,
+            memberPriceOff: null,
+            modifiedBy: null,
+            modifiedAt: null,
+            deletedAt: null,
+            deletedBy: null,
+          });
+          // add bonus product
+          app.models.BonusProduct.create({
+            freeQty: 3,
+            venueId: '1',
+            withProductId: '1',
+            getProductId: '1',
+            discountId: '11',
+          });
+
+          // add bonus product
+          app.models.BonusProduct.create({
+            freeQty: 3,
+            venueId: '1',
+            withProductId: '2',
+            getProductId: '1',
+            discountId: '12',
+          });
+          // add a ProductDiscount
+          app.models.ProductDiscount.create({
+            createdAt: '2018-01-18T13:49:22.205Z',
+            createdBy: 'venue1Owner',
+            venueId: '1',
+            discountId: '11',
+            productId: '1',
+            startDate: '2018-01-18T13:49:22.205Z',
+            endDate: null,
+            deletedBy: null,
+            deletedAt: null,
+          }, (err, models) => {
+            next();
+          });
+          // add a ProductDiscount
+          app.models.ProductDiscount.create({
+            createdAt: '2018-01-18T13:49:22.205Z',
+            createdBy: 'venue1Owner',
+            venueId: '1',
+            discountId: '12',
+            productId: '2',
+            startDate: '2018-01-18T13:49:22.205Z',
+            endDate: null,
+            deletedBy: null,
+            deletedAt: null,
+          }, (err, models) => {
+            next();
+          });
+        });
+    });
+
+    it('Add transaction with bonus product discount should return 200',
+      (next) => {
+        const txn = {
+          boughtBy: '2',
+          boughtAt: '2018-01-19T13:49:22.205Z',
+          currency: 'CNY',
+          venueId: '1',
+          transactionDetail: [
+            {
+              quantity: 3,
+              productId: '1',
+              productPricingId: '1',
+            },
+            {
+              quantity: 1,
+              productId: '2',
+              productPricingId: '2',
+            },
+          ],
+          transactionStatusId: '1',
+          paymentTypeId: '4',
+        };
+        request(app)
+          .post('/api/transaction')
+          .set('Accept', 'application/json')
+          .query({'access_token': token})
+          .send(txn)
+          .expect(200, (err, res) => {
+            expect(err).toBe(null);
+            expect(res.body).not.toBe(null);
+            next(); // TODO: @prashant, why it doesn't call callback here?
+          });
+        next();
+      });
+
+    it('List transaction should return transaction with details when include filter exists', // eslint-disable-line
+      (next) => {
+        request(app)
+          .get('/api/transaction')
+          .set('Accept', 'application/json')
+          .query({
+            'access_token': token,
+            filter: {
+              include: 'transactionDetail',
+            },
+          })
+          .expect(200, (err, res) => {
+            expect(err).toBe(null);
+            expect(res.body).not.toBe(null);
+            next();
+          });
+      });
+
+    it('List transaction should return transaction with details', (next) => {
+      request(app)
+        .get('/api/transaction')
+        .set('Accept', 'application/json')
+        .query({
+          'access_token': token,
+        })
+        .expect(200, (err, res) => {
+          let response = res.body[10];
+          let transactionDetail = response.transactionDetail;
+          expect(err).toBe(null);
+          expect(res.body).not.toBe(null);
+          expect(res.body.length).toEqual(11);
+          expect(transactionDetail).toEqual([
+            {
+              productId: 1,
+              productPricingId: 1,
+              transactionId: 11,
+              quantity: 6,
+              subTotal: 6000,
+              discount: 3000,
+              netTotal: 3000,
+              id: 19,
+            },
+            {
+              productId: 2,
+              productPricingId: 2,
+              transactionId: 11,
+              quantity: 1,
+              subTotal: 1001,
+              discount: 0,
+              netTotal: 1001,
+              id: 20,
+            },
+            {
+              productId: 1,
+              productPricingId: 1,
+              transactionId: 11,
+              quantity: 3,
+              discount: 3000,
+              subTotal: 3000,
+              netTotal: 0,
+              id: 21,
+            },
+          ]);
+          expect(response.totalDiscount).toEqual(3000);
+          expect(response.grandTotal).toEqual(4001);
+          next();
+        });
+    });
+  });
+
   describe('Remote method', () => {
     let token = null;
     beforeAll((next) => {

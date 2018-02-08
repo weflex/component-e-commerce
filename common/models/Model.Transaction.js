@@ -122,7 +122,11 @@ module.exports = function(Model) {
         ctx.instance.__data['hasMembership'] = false;
         let transactionDetail = ctx.hookState.relations['transactionDetail'];
         transactionDetail.forEach((detail) => {
-          let promise = getProductPriceFromTransactionDetail(ctx, detail);
+          let promise = getProductPriceFromTransactionDetail(
+            ctx,
+            detail,
+            detail.productId
+          );
           promises.push(promise);
         });
         // by default, new transactions are pending
@@ -164,8 +168,14 @@ module.exports = function(Model) {
           let transactionDiscount = ctx.instance.__data['transactionDiscount'];
           // iterate over each product price
           // and calculate subTotal, qty, product discount, and netTotal
-          ctx.instance.__data['price'].forEach((price, item) => {
+          cntr = 0;
+          ctx.instance.__data['price'].map((price, item) => {
             let appliedDiscount = 0;
+            // special case, when bonus products are of same type, we must
+            // update the quantity here
+            ctx.hookState.relations['transactionDetail'][cntr]['quantity'] =
+              ctx.instance.__data['qty'][item];
+
             let subTotal = price * ctx.instance.__data['qty'][item];
             if (ctx.instance.__data['isMembershipDiscount'][item] &&
               ctx.instance.__data['hasMembership'] === false
@@ -173,11 +183,11 @@ module.exports = function(Model) {
               ctx.instance.__data['discount'][item] = 0;
             }
             appliedDiscount += ctx.instance.__data['discount'][item];
-            ctx.hookState.relations['transactionDetail'][item]['subTotal'] =
+            ctx.hookState.relations['transactionDetail'][cntr]['subTotal'] =
               subTotal;
-            ctx.hookState.relations['transactionDetail'][item]['discount'] =
+            ctx.hookState.relations['transactionDetail'][cntr]['discount'] =
               appliedDiscount;
-            ctx.hookState.relations['transactionDetail'][item]['netTotal'] =
+            ctx.hookState.relations['transactionDetail'][cntr]['netTotal'] =
               subTotal - appliedDiscount;
             ctx.instance.totalPrice += subTotal;
             ctx.instance.totalDiscount += appliedDiscount;
@@ -185,7 +195,7 @@ module.exports = function(Model) {
             // Calculate grandTotal by subtracting discount from totalPrice
             ctx.instance.grandTotal =
               ctx.instance.totalPrice - ctx.instance.totalDiscount;
-            item++;
+            cntr++;
           });
           delete ctx.instance.__data['price'];
           delete ctx.instance.__data['qty'];
@@ -198,9 +208,9 @@ module.exports = function(Model) {
         });
     });
 
-    function getProductPriceFromTransactionDetail(ctx, detail) {
+    function getProductPriceFromTransactionDetail(ctx, detail, productId) {
       let promise = Promise.resolve('ready');
-      promise = app.models.Product.findById(detail.productId, {
+      promise = app.models.Product.findById(productId, {
         include: [
           {
             relation: 'productPricing',
@@ -244,8 +254,10 @@ module.exports = function(Model) {
         let discount = 0;
         if (null !== instance) {
           const data = instance.toJSON();
-          ctx.instance.__data['price'].push(data.productPricing[0].unitPrice);
-          ctx.instance.__data['qty'].push(detail.quantity);
+          ctx.instance.__data['price'][productId] =
+            data.productPricing[0].unitPrice;
+          ctx.instance.__data['qty'][productId] = detail.quantity;
+          ctx.instance.__data['discount'][productId] = discount;
           if (data.productDiscount.length > 0) {
             const discountTypeId = data.productDiscount[0].discount.discountTypeId; // eslint-disable-line
             discount = app.models.Discount.getProductDiscounts(
@@ -256,12 +268,25 @@ module.exports = function(Model) {
             );
             if (discountTypeId ===
               discountTypes.DISCOUNT_TYPE_MEMBERSHIP_PRICE_OFF) {
-              ctx.instance.__data['isMembershipDiscount'].push(true);
+              ctx.instance.__data['isMembershipDiscount'][productId] = true;
             } else {
-              ctx.instance.__data['isMembershipDiscount'].push(false);
+              ctx.instance.__data['isMembershipDiscount'][productId] = false;
+            }
+            ctx.instance.__data['discount'][productId] = discount;
+            if (discountTypeId ===
+              discountTypes.DISCOUNT_TYPE_BONUS_PRODUCT) {
+              // TODO: @prashant
+              // add configured bonus products to the cart
+              // by either updating the quantity if same product
+              // or getProduct with unitPrice 0.0
+              addBonusProduct(
+                ctx,
+                data.productDiscount[0].discount,
+                data.productPricing[0],
+                productId
+              );
             }
           }
-          ctx.instance.__data['discount'].push(discount);
         }
         return ctx;
       });
@@ -284,6 +309,66 @@ module.exports = function(Model) {
           if (data.membership.expiresAt === null ||
             data.membership.expiresAt > Date.now()) {
             ctx.instance.__data['hasMembership'] = true;
+          }
+        }
+        return ctx;
+      });
+    };
+
+    function addBonusProduct(ctx, discount, productPricing, productId) {
+      app.models.BonusProduct.findOne({
+        where: {
+          discountId: discount.id,
+          withProductId: productPricing.productId,
+        },
+        include: {
+          relation: 'getProduct',
+          scope: {
+            include: {
+              relation: 'productPricing',
+              scope: {
+                order: 'id DESC',
+              },
+              limit: 1,
+            },
+          },
+        },
+      }, (err, instance) => {
+        if (null !== instance) {
+          const data = instance.toJSON();
+          if (data.getProduct.id === data.withProductId) {
+            // same product, thus update the quantity,
+            // with discount as price of product
+
+            ctx.instance.__data['qty'] =
+              ctx.instance.__data['qty'].map(
+                (qty, idx) => {
+                  if (idx == productId) {
+                    qty += data.freeQty;
+                  }
+                  return qty;
+                });
+            ctx.instance.__data['discount'] =
+              ctx.instance.__data['discount'].map(
+                (discount, idx) => {
+                  if (idx == productId) {
+                    discount += (data.freeQty * productPricing.unitPrice);
+                  }
+                  return discount;
+                });
+          } else if (data.getProduct.id !== data.withProductId) {
+            // add this product to ctx.hookState.relations['transactionDetail']
+            // with unitPrice, quantity and discount as price of product
+            let freeProductPricing = data.getProduct.productPricing[0];
+            let freeProduct = {
+              productId: data.getProduct.id,
+              productPricingId: freeProductPricing.id,
+              quantity: data.freeQty,
+              discount: freeProductPricing.unitPrice * data.freeQty,
+              subTotal: freeProductPricing.unitPrice * data.freeQty,
+              netTotal: 0,
+            };
+            ctx.hookState.relations['transactionDetail'].push(freeProduct);
           }
         }
         return ctx;

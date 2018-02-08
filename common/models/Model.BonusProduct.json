@@ -15,6 +15,18 @@
       "type": "Number",
       "required": true,
       "default": 0
+    },
+    "withProductId": {
+      "type": "String",
+      "required": true
+    },
+    "getProductId": {
+      "type": "String",
+      "required": true
+    },
+    "discountId": {
+      "type": "String",
+      "required": true
     }
   },
   "validations": [],
@@ -30,7 +42,7 @@
     "withProduct": {
       "type": "belongsTo",
       "model": "Product",
-      "foreignKey": "productId",
+      "foreignKey": "withProductId",
       "options": {
         "validate": true
       }
@@ -38,7 +50,7 @@
     "getProduct": {
       "type": "belongsTo",
       "model": "Product",
-      "foreignKey": "productId",
+      "foreignKey": "getProductId",
       "options": {
         "validate": true
       }

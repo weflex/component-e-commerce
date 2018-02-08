@@ -113,6 +113,10 @@
     "dataSource": "db",
     "public": true
   },
+  "BonusProduct": {
+    "dataSource": "db",
+    "public": true
+  },
   "ProductDiscount": {
     "dataSource": "db",
     "public": true
