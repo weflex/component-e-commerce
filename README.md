@@ -26,6 +26,12 @@ We can categorize payments into two major channels.
 | TransactionDetail        | A cart contains different products a user bought during a transaction.
 
 ### Entity Relationships
+
+ER Diagram below shows an app integrated with the component.
+
+**Note:** The Role, RoleMapping, Access Token, ACL Models are not required to integrate with the component. They are just displayed here and expected to exist in your app for Authentication and Authorization already.
+Component requires User & Venue Model to be present in your component configuration. See bootscript example below.
+
 ![ERD for component-commerce](component-commerce.png?raw=true)
 
 ## Usage
@@ -137,7 +143,7 @@ We can categorize payments into two major channels.
 
 ```
 module.exports = function commerce(app) {
-  var commerce = require('../../node_modules/component-commerce/lib'); // specify relative path
+  var commerce = require('component-commerce/lib');
 
   var options = {
     // custom user model
