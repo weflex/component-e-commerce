@@ -4,7 +4,7 @@ This component consists of all the models required to process e-commerce data.
 
 ### Overview
 
-We can categorise payments into two major channels.
+We can categorize payments into two major channels.
 
 - Cash payments are also processed by the venue.
 - Online payments are processed using a third party service [Ping++](https://www.pingxx.com).
@@ -24,6 +24,9 @@ We can categorise payments into two major channels.
 | TransactionStatusDetail  | Transaction status detail is stored separately to help with internationalization by storing product name and description with corresponding `locale` data.
 | Transaction              | When a user buys an item, they will create a transaction which may have many products.
 | TransactionDetail        | A cart contains different products a user bought during a transaction.
+
+### Entity Relationships
+![ERD for component-commerce](component-commerce.png?raw=true)
 
 ## Usage
 
@@ -113,6 +116,10 @@ We can categorise payments into two major channels.
     "public": true
   },
   "Discount": {
+    "dataSource": "db",
+    "public": true
+  },
+  "BonusProduct": {
     "dataSource": "db",
     "public": true
   },

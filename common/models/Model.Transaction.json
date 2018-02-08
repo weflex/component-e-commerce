@@ -39,7 +39,7 @@
     "paymentTypeId": {
       "type": "String"
     },
-    "transcationDiscountId": {
+    "transactionDiscountId": {
       "type": "String"
     }
   },
