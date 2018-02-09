@@ -19,14 +19,6 @@
       "type": "String",
       "required": true
     },
-    "venueId": {
-      "type": "String",
-      "required": true
-    },
-    "discountId": {
-      "type": "String",
-      "required": true
-    },
     "startDate": {
       "type": "Date",
       "required": true
@@ -62,7 +54,7 @@
     "venue": {
       "type": "belongsTo",
       "model": "Venue",
-      "property": "venueId",
+      "foreignKey": "venueId",
       "options": {
         "validate": true
       }
@@ -70,7 +62,7 @@
     "discount": {
       "type": "belongsTo",
       "model": "Discount",
-      "property": "discountId",
+      "foreignKey": "discountId",
       "options": {
         "validate": true
       }

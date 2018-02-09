@@ -115,6 +115,8 @@ module.exports = function(Model) {
         ctx.instance.__data['qty'] = [];
         // this collection would hold the discount for each product
         ctx.instance.__data['discount'] = [];
+        // this collection would hold the bonusProduct discount for same product
+        ctx.instance.__data['bonusProduct'] = [];
         // this collection would hold the isMembershipDiscount for each product
         // as it is required to update the product discount based on if the
         // member who bought the item has membership or not
@@ -141,7 +143,7 @@ module.exports = function(Model) {
         app
           .models
           .TransactionDiscount
-          .getTransactionDiscounts(ctx, ctx.instance.__data['venueId']);
+          .hasTransactionDiscount(ctx, ctx.instance.__data['venueId']);
       promises.push(promise);
 
       /* istanbul ignore next */
@@ -153,53 +155,91 @@ module.exports = function(Model) {
           // Transaction discounts take precedence over product discounts,
           // thus it should make all product discounts 0
           let totalQty = 0;
-          totalQty = ctx.instance.__data['qty'].reduce((totalQty, qty) => {
-            return totalQty + qty;
-          });
-          // initalize counter
-          let cntr = 0;
           let totalPrice = 0;
-          totalPrice = ctx.instance.__data['price'].reduce(
-            (totalPrice, price) => {
-              return totalPrice + (ctx.instance.__data['qty'][cntr] * price);
-              cntr++;
+          let cntr = 0;
+
+          let txnDiscount = ctx.instance.__data['transactionDiscount'];
+          let txnDetail = ctx.hookState.relations['transactionDetail'];
+          if (undefined !== txnDiscount) {
+            // remove bonus product if exists
+            txnDetail = txnDetail.filter((item) => {
+              return item.discount === undefined;
             });
 
-          let transactionDiscount = ctx.instance.__data['transactionDiscount'];
+            ctx.instance.__data['qty'] = ctx.instance.__data['qty'].map(
+              (qty, item) => {
+                if (ctx.instance.__data['bonusProduct'][item] !== undefined) {
+                  qty -= ctx.instance.__data['bonusProduct'][item];
+                }
+                totalQty += qty;
+                return qty;
+              });
+
+            ctx.instance.__data['price'].map(
+              (price, item) => {
+                totalPrice += (ctx.instance.__data['qty'][item] * price);
+              });
+            ctx.instance.transactionDiscountId = txnDiscount.id;
+            ctx.instance.totalDiscount =
+              app
+                .models
+                .TransactionDiscount
+                .getTotalTransactionDiscount(
+                  txnDiscount.discount,
+                  totalPrice,
+                  totalQty
+                );
+
+            cntr = 0;
+            ctx.instance.__data['price'].map((price, item) => {
+              let subTotal = price * ctx.instance.__data['qty'][item];
+              txnDetail[cntr]['subTotal'] = subTotal;
+              txnDetail[cntr]['netTotal'] = subTotal;
+              txnDetail[cntr]['discount'] = 0;
+              ctx.instance.totalPrice += subTotal;
+              ctx.instance.grandTotal =
+                ctx.instance.totalPrice - ctx.instance.totalDiscount;
+              cntr++;
+            });
+          } else {
           // iterate over each product price
           // and calculate subTotal, qty, product discount, and netTotal
-          cntr = 0;
-          ctx.instance.__data['price'].map((price, item) => {
-            let appliedDiscount = 0;
-            // special case, when bonus products are of same type, we must
-            // update the quantity here
-            ctx.hookState.relations['transactionDetail'][cntr]['quantity'] =
-              ctx.instance.__data['qty'][item];
+            cntr = 0;
+            ctx.instance.__data['price'].map((price, item) => {
+              let appliedDiscount = 0;
+              // special case, when bonus products are of same type, we must
+              // update the quantity here
+              txnDetail[cntr]['quantity'] = ctx.instance.__data['qty'][item];
 
-            let subTotal = price * ctx.instance.__data['qty'][item];
-            if (ctx.instance.__data['isMembershipDiscount'][item] &&
+              let subTotal = price * ctx.instance.__data['qty'][item];
+              // when its membership discount and user has no membership,
+              // reset discount to 0
+              if (ctx.instance.__data['isMembershipDiscount'][item] &&
               ctx.instance.__data['hasMembership'] === false
-            ) {
-              ctx.instance.__data['discount'][item] = 0;
-            }
-            appliedDiscount += ctx.instance.__data['discount'][item];
-            ctx.hookState.relations['transactionDetail'][cntr]['subTotal'] =
-              subTotal;
-            ctx.hookState.relations['transactionDetail'][cntr]['discount'] =
-              appliedDiscount;
-            ctx.hookState.relations['transactionDetail'][cntr]['netTotal'] =
-              subTotal - appliedDiscount;
-            ctx.instance.totalPrice += subTotal;
-            ctx.instance.totalDiscount += appliedDiscount;
+              ) {
+                ctx.instance.__data['discount'][item] = 0;
+              }
+              appliedDiscount += ctx.instance.__data['discount'][item];
+              txnDetail[cntr]['subTotal'] = subTotal;
+              txnDetail[cntr]['discount'] = appliedDiscount;
+              txnDetail[cntr]['netTotal'] = subTotal - appliedDiscount;
+              ctx.instance.totalPrice += subTotal;
+              ctx.instance.totalDiscount += appliedDiscount;
 
-            // Calculate grandTotal by subtracting discount from totalPrice
-            ctx.instance.grandTotal =
-              ctx.instance.totalPrice - ctx.instance.totalDiscount;
-            cntr++;
-          });
+              // Calculate grandTotal by subtracting discount from totalPrice
+              ctx.instance.grandTotal =
+                ctx.instance.totalPrice - ctx.instance.totalDiscount;
+              cntr++;
+            });
+          }
+          ctx.hookState.relations['transactionDetail'] = txnDetail;
           delete ctx.instance.__data['price'];
           delete ctx.instance.__data['qty'];
           delete ctx.instance.__data['discount'];
+          delete ctx.instance.__data['hasMembership'];
+          delete ctx.instance.__data['isMembershipDiscount'];
+          delete ctx.instance.__data['transactionDiscount'];
+          delete ctx.instance.__data['bonusProduct'];
           next();
         })
         .catch(err => {
@@ -254,15 +294,16 @@ module.exports = function(Model) {
         let discount = 0;
         if (null !== instance) {
           const data = instance.toJSON();
-          ctx.instance.__data['price'][productId] =
-            data.productPricing[0].unitPrice;
+          const productPricing = data.productPricing[0];
+          ctx.instance.__data['price'][productId] = productPricing.unitPrice;
           ctx.instance.__data['qty'][productId] = detail.quantity;
           ctx.instance.__data['discount'][productId] = discount;
           if (data.productDiscount.length > 0) {
-            const discountTypeId = data.productDiscount[0].discount.discountTypeId; // eslint-disable-line
+            const discountObj = data.productDiscount[0].discount;
+            const discountTypeId = discountObj.discountTypeId;
             discount = app.models.Discount.getProductDiscounts(
-              data.productPricing[0],
-              data.productDiscount[0].discount,
+              productPricing,
+              discountObj,
               detail.quantity,
               ctx.instance.__data['boughtBy']
             );
@@ -281,8 +322,8 @@ module.exports = function(Model) {
               // or getProduct with unitPrice 0.0
               addBonusProduct(
                 ctx,
-                data.productDiscount[0].discount,
-                data.productPricing[0],
+                discountObj,
+                productPricing,
                 productId
               );
             }
@@ -356,9 +397,13 @@ module.exports = function(Model) {
                   }
                   return discount;
                 });
+            ctx.instance.__data['bonusProduct'][productId] = data.freeQty;
           } else if (data.getProduct.id !== data.withProductId) {
             // add this product to ctx.hookState.relations['transactionDetail']
             // with unitPrice, quantity and discount as price of product
+
+            // set it as bonus product so as to update
+            // when transaction discounts are available
             let freeProductPricing = data.getProduct.productPricing[0];
             let freeProduct = {
               productId: data.getProduct.id,

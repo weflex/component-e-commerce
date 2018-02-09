@@ -60,7 +60,7 @@
     "userCreated": {
       "type": "belongsTo",
       "model": "WeflexUser",
-      "foreignKey": "createdBy",
+      "property": "createdBy",
       "options": {
         "validate": true
       }
@@ -68,7 +68,7 @@
     "userModified": {
       "type": "belongsTo",
       "model": "WeflexUser",
-      "foreignKey": "modifiedBy",
+      "property": "modifiedBy",
       "options": {
         "validate": true
       }
@@ -76,7 +76,7 @@
     "userDeleted": {
       "type": "belongsTo",
       "model": "WeflexUser",
-      "foreignKey": "deletedBy",
+      "property": "deletedBy",
       "options": {
         "validate": true
       }

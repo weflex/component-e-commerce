@@ -1,4 +1,6 @@
 
+const discountTypes = require('../../lib/helpers/DiscountTypes');
+
 module.exports = function(Model) {
   const debug = require('debug')('component:commerce:discount');
   let app;
@@ -6,9 +8,14 @@ module.exports = function(Model) {
   Model.once('attached', (a) => {
     app = a;
 
-    Model.getTransactionDiscounts = (ctx, venueId) => {
-      let promise = Promise.resolve('ready');
-      promise = app.models.TransactionDiscount.findOne({
+    /**
+     * Check if transaction discounts are available for the venue
+     * @param {Object} ctx LoopbackContext
+     * @param {String|Integer} venueId Venue ID
+     * @return {Object} Return LoopbackContext
+     */
+    Model.hasTransactionDiscount = (ctx, venueId) => {
+      app.models.TransactionDiscount.findOne({
         where: {
           and: [{
             or: [{
@@ -27,9 +34,11 @@ module.exports = function(Model) {
           }],
         },
         include: {
-          relation: 'Discount',
+          relation: 'discount',
         },
+        order: 'id DESC',
       }, (err, instance) => {
+        /* istanbul ignore if */
         if (err) {
           console.log(err);
           throw err;
@@ -40,6 +49,39 @@ module.exports = function(Model) {
         }
         return ctx;
       });
+    };
+
+    Model.getTotalTransactionDiscount = (discount, totalPrice, quantity) => {
+      let appliedDiscount = 0;
+      if (discount.discountTypeId ===
+        discountTypes.DISCOUNT_TYPE_PCT_WHEN_MIN_TXN_AMT) {
+        if (totalPrice >= discount.minTxnAmt) {
+          appliedDiscount = (discount.pctOfPrice * totalPrice) / 100;
+        }
+      }
+
+      if (discount.discountTypeId ===
+        discountTypes.DISCOUNT_TYPE_FLAT_WHEN_MIN_TXN_AMT) {
+        if (totalPrice >= discount.minTxnAmt) {
+          appliedDiscount = discount.flatPrice;
+        }
+      }
+
+      if (discount.discountTypeId ===
+        discountTypes.DISCOUNT_TYPE_PCT_WHEN_MIN_QTY_PER_TXN) {
+        if (quantity >= discount.minQty) {
+          appliedDiscount = (discount.pctOfPrice * totalPrice) / 100;
+        }
+      }
+
+      if (discount.discountTypeId ===
+        discountTypes.DISCOUNT_TYPE_FLAT_WHEN_MIN_QTY_PER_TXN) {
+        if (quantity >= discount.minQty) {
+          appliedDiscount = discount.flatPrice;
+        }
+      }
+
+      return appliedDiscount;
     };
   });
 };

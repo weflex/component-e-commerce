@@ -92,7 +92,6 @@ module.exports = function(Model) {
               appliedDiscount = quantity * discount.memberPriceOff;
             }
           }
-          // console.log(appliedDiscount);
           return appliedDiscount;
         });
       }

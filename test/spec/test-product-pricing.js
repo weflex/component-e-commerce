@@ -162,7 +162,6 @@ describe('Product pricing', () => {
   describe('Model methods', () => {
     it('calling replaceOrCreate should create a new instance with new ID',
       (next) => {
-        // console.log(app.dataSources);
         app.models.ProductPricing.replaceOrCreate(fixtures[1], null,
           (err, instance) => {
             expect(instance.id).not.toEqual(fixtures[1].id);
