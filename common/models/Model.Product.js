@@ -1,4 +1,5 @@
 
+const async = require('async');
 const jugglerUtils = require('loopback-datasource-juggler/lib/utils');
 /**
  * Merge include options of default scope with runtime include option.
@@ -42,7 +43,51 @@ module.exports = function(Model) {
       ctx.result = result.filter((instance) => {
         return !instance.deletedAt;
       });
-      next();
+      ctx.result = ctx.result.map((instance) => {
+        const instanceData = instance.toJSON();
+        instanceData.discount = instanceData.discount.reverse().filter(
+          (discount, index) => {
+            return index === 0;
+          });
+        return instanceData;
+      });
+
+      // if transaction discounts are set, remove product discounts
+      async.each(ctx.result, (result, callback) => {
+        app
+          .models
+          .TransactionDiscount
+          .findOne({
+            where: {
+              and: [{
+                or: [{
+                  endDate: null,
+                }, {
+                  endDate: {
+                    gte: Date.now(),
+                  },
+                }],
+              },
+              {
+                startDate: {
+                  lte: Date.now(),
+                },
+                venueId: result.venueId,
+              }],
+            },
+            include: {
+              relation: 'discount',
+            },
+            order: 'id DESC',
+          }, (err, instance) => {
+            if (null != instance) {
+              delete result.discount;
+              callback(err);
+            }
+          });
+      }, (err) => {
+        next();
+      });
     });
 
     /** ************* OPERATION HOOK ************* **/

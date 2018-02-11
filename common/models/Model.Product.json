@@ -113,6 +113,12 @@
       "type": "hasMany",
       "model": "ProductDiscount",
       "foreignKey": "productId"
+    },
+    "discount": {
+      "type": "hasMany",
+      "model": "Discount",
+      "foreignKey": "productId",
+      "through": "ProductDiscount"
     }
   },
   "acls": [
