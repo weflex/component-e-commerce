@@ -7,7 +7,7 @@ module.exports = function(Model) {
   Model.disableRemoteMethodByName('deleteById');
   Model.disableRemoteMethodByName('removeById');
 
-  Model.disableRemoteMethodByName('prototype.updateAttributes', true);
+  Model.disableRemoteMethodByName('prototype.updateAttributes');
   Model.disableRemoteMethodByName('upsert');
   Model.disableRemoteMethodByName('upsertWithWhere');
   Model.disableRemoteMethodByName('update');

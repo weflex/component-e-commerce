@@ -3,9 +3,9 @@ module.exports = function(Model) {
   const debug = require('debug')('component:commerce:paymentType');
   let app;
 
-  Model.disableRemoteMethodByName('destroyById', true);
-  Model.disableRemoteMethodByName('deleteById',  true);
-  Model.disableRemoteMethodByName('removeById',  true);
+  Model.disableRemoteMethodByName('destroyById');
+  Model.disableRemoteMethodByName('deleteById');
+  Model.disableRemoteMethodByName('removeById');
 
   Model.once('attached', (a) => {
     app = a;
