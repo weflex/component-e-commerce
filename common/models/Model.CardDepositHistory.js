@@ -3,17 +3,17 @@ module.exports = function(Model) {
   const debug = require('debug')('component:commerce:carddeposithistory');
   let app;
 
-  Model.disableRemoteMethodByName('destroyById');
-  Model.disableRemoteMethodByName('deleteById');
-  Model.disableRemoteMethodByName('removeById');
+  Model.disableRemoteMethod('destroyById',true);
+  Model.disableRemoteMethod('deleteById',true);
+  Model.disableRemoteMethod('removeById',true);
 
-  Model.disableRemoteMethodByName('prototype.updateAttributes');
-  Model.disableRemoteMethodByName('upsert');
-  Model.disableRemoteMethodByName('upsertWithWhere');
-  Model.disableRemoteMethodByName('update');
-  Model.disableRemoteMethodByName('updateById');
-  Model.disableRemoteMethodByName('updateAll');
-  Model.disableRemoteMethodByName('createChangeStream');
+  Model.disableRemoteMethod('prototype.updateAttributes',true);
+  Model.disableRemoteMethod('upsert',true);
+  Model.disableRemoteMethod('upsertWithWhere',true);
+  Model.disableRemoteMethod('update',true);
+  Model.disableRemoteMethod('updateById',true);
+  Model.disableRemoteMethod('updateAll',true);
+  Model.disableRemoteMethod('createChangeStream',true);
 
   Model.once('attached', (a) => {
     app = a;

@@ -17,9 +17,9 @@ module.exports = function(Model) {
 
   let app;
 
-  Model.disableRemoteMethodByName('destroyById');
-  Model.disableRemoteMethodByName('deleteById');
-  Model.disableRemoteMethodByName('removeById');
+  Model.disableRemoteMethod('destroyById',true);
+  Model.disableRemoteMethod('deleteById',true);
+  Model.disableRemoteMethod('removeById',true);
 
   Model.once('attached', (a) => {
     app = a;
