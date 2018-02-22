@@ -1241,6 +1241,244 @@ describe('Transaction with product discount', () => {
     });
   });
 
+  describe('Group buy discount', () => {
+    let token = null;
+    beforeAll((next) => {
+      request(app)
+        .post('/api/users/login')
+        .set('Accept', 'application/json')
+        .send({
+          username: 'generalUser',
+          password: 'password',
+        })
+        .expect(200, (err, res) => {
+          let today = new Date();
+          let tomorrow = today.getDate() + 1;
+          console.log(tomorrow);
+          expect(err).toBe(null);
+          token = res.body.id;
+          expect(res.body.userId).toEqual(2);
+          app.models.Discount.create({
+            discountTypeId: '11',
+            venueId: '1',
+            createdBy: 'venue1Owner',
+            createdAt: '2018-01-18T13:49:22.205Z',
+            flatPrice: 800,
+            pctOfPrice: null,
+            minTxnAmt: null,
+            minQty: 10,
+            memberPriceOff: null,
+            modifiedBy: null,
+            modifiedAt: null,
+            deletedAt: null,
+            deletedBy: null,
+            groupBuyAvailable: 10,
+          });
+          // add a ProductDiscount
+          app.models.ProductDiscount.create({
+            createdAt: '2018-01-18T13:49:22.205Z',
+            createdBy: 'venue1Owner',
+            venueId: '1',
+            discountId: '13',
+            productId: '1',
+            startDate: '2018-01-18T13:49:22.205Z',
+            endDate: tomorrow.toISOString(),
+            deletedBy: null,
+            deletedAt: null,
+          }, (err, models) => {
+            next();
+          });
+        });
+    });
+
+    it('Add transaction with group buy discount should return 200', (next) => {
+      const txn = {
+        boughtBy: '2',
+        boughtAt: '2018-01-19T13:49:22.205Z',
+        currency: 'CNY',
+        venueId: '1',
+        transactionDetail: [
+          {
+            quantity: 1,
+            productId: '1',
+            productPricingId: '1',
+          },
+          {
+            quantity: 1,
+            productId: '2',
+            productPricingId: '2',
+          },
+        ],
+        transactionStatusId: '1',
+        paymentTypeId: '4',
+      };
+      request(app)
+        .post('/api/transaction')
+        .set('Accept', 'application/json')
+        .query({'access_token': token})
+        .send(txn)
+        .expect(200, (err, res) => {
+          expect(err).toBe(null);
+          expect(res.body).not.toBe(null);
+          next(); // TODO: @prashant, why it doesn't call callback here?
+        });
+      next();
+    });
+
+    it('List transaction should return transaction with details when include filter exists', // eslint-disable-line
+      (next) => {
+        request(app)
+          .get('/api/transaction')
+          .set('Accept', 'application/json')
+          .query({
+            'access_token': token,
+            filter: {
+              include: 'transactionDetail',
+            },
+          })
+          .expect(200, (err, res) => {
+            expect(err).toBe(null);
+            expect(res.body).not.toBe(null);
+            next();
+          });
+      });
+
+    it('List transaction should return transaction with details', (next) => {
+      request(app)
+        .get('/api/transaction')
+        .set('Accept', 'application/json')
+        .query({
+          'access_token': token,
+        })
+        .expect(200, (err, res) => {
+          let response = res.body[11];
+          let transactionDetail = response.transactionDetail;
+          expect(err).toBe(null);
+          expect(res.body).not.toBe(null);
+          expect(res.body.length).toEqual(12);
+          expect(transactionDetail).toEqual([
+            {
+              productId: 1,
+              productPricingId: 1,
+              transactionId: 12,
+              quantity: 1,
+              subTotal: 3000,
+              discount: 900,
+              netTotal: 2100,
+              id: 22,
+            },
+            {
+              productId: 2,
+              productPricingId: 2,
+              transactionId: 12,
+              quantity: 1,
+              subTotal: 1001,
+              discount: 0,
+              netTotal: 1001,
+              id: 23,
+            },
+          ]);
+          expect(response.totalDiscount).toEqual(900);
+          expect(response.grandTotal).toEqual(3101);
+          next();
+        });
+    });
+
+    it('Add transaction with group buy discount when no membership should return 200', // eslint-disable-line
+      (next) => {
+        const txn = {
+          boughtBy: '2',
+          boughtAt: '2018-01-19T13:49:22.205Z',
+          currency: 'CNY',
+          venueId: '1',
+          transactionDetail: [
+            {
+              quantity: 3,
+              productId: '1',
+              productPricingId: '1',
+            },
+            {
+              quantity: 1,
+              productId: '2',
+              productPricingId: '2',
+            },
+          ],
+          transactionStatusId: '1',
+          paymentTypeId: '4',
+        };
+        request(app)
+          .post('/api/transaction')
+          .set('Accept', 'application/json')
+          .query({'access_token': token})
+          .send(txn)
+          .expect(200, (err, res) => {
+            expect(err).toBe(null);
+            expect(res.body).not.toBe(null);
+            next(); // TODO: @prashant, why it doesn't call callback here?
+          });
+        next();
+      });
+
+    it('List transaction should return transaction with details when include filter exists', // eslint-disable-line
+      (next) => {
+        request(app)
+          .get('/api/transaction')
+          .set('Accept', 'application/json')
+          .query({
+            'access_token': token,
+            filter: {
+              include: 'transactionDetail',
+            },
+          })
+          .expect(200, (err, res) => {
+            expect(err).toBe(null);
+            expect(res.body).not.toBe(null);
+            next();
+          });
+      });
+
+    it('List transaction should return transaction with details', (next) => {
+      request(app)
+        .get('/api/transaction')
+        .set('Accept', 'application/json')
+        .query({
+          'access_token': token,
+        })
+        .expect(200, (err, res) => {
+          let response = res.body[12];
+          let transactionDetail = response.transactionDetail;
+          expect(err).toBe(null);
+          expect(res.body).not.toBe(null);
+          expect(res.body.length).toEqual(13);
+          expect(transactionDetail).toEqual([
+            {
+              productId: 1,
+              productPricingId: 1,
+              transactionId: 10,
+              quantity: 3,
+              subTotal: 3000,
+              discount: 0,
+              netTotal: 3000,
+              id: 24,
+            },
+            {
+              productId: 2,
+              productPricingId: 2,
+              transactionId: 10,
+              quantity: 1,
+              subTotal: 1001,
+              discount: 0,
+              netTotal: 1001,
+              id: 25,
+            },
+          ]);
+          expect(response.totalDiscount).toEqual(0);
+          expect(response.grandTotal).toEqual(4001);
+          next();
+        });
+    });
+  });
+
   describe('Remote method', () => {
     let token = null;
     beforeAll((next) => {

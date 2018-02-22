@@ -1,4 +1,6 @@
 
+const errCodes = require('../../lib/helpers/ErrorStatusCode');
+
 module.exports = function(Model) {
   const debug = require('debug')('component:commerce:carddeposithistory');
   let app;
@@ -7,7 +9,7 @@ module.exports = function(Model) {
   Model.disableRemoteMethodByName('deleteById');
   Model.disableRemoteMethodByName('removeById');
 
-  Model.disableRemoteMethodByName('prototype.updateAttributes', true);
+  Model.disableRemoteMethodByName('prototype.updateAttributes');
   Model.disableRemoteMethodByName('upsert');
   Model.disableRemoteMethodByName('upsertWithWhere');
   Model.disableRemoteMethodByName('update');
@@ -20,8 +22,8 @@ module.exports = function(Model) {
 
     // validate if depositValue is greater than ZERO
     Model.validateAsync('depositValue', depositValueMustBeGreaterThanZero, {
-      code: 'UnprocessableEntity',
-      message: 'cannot be less than or equal to zero',
+      code: 422,
+      message: errCodes.ERR_CARD_DEPOSIT_HISTORY_MINIMUM_DEPOSIT_GREATER_THAN_0,
     });
 
     function depositValueMustBeGreaterThanZero(err, next) {
@@ -84,7 +86,7 @@ module.exports = function(Model) {
       });
     }
 
-    /** ************* REMEOTE METHOD ************* **/
+    /** ************* REMOTE METHOD ************* **/
 
     Model.deposits = (membershipCard, options, filter, res, next) => {
       let userId = null;

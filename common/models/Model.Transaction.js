@@ -1,6 +1,7 @@
 
 const jugglerUtils = require('loopback-datasource-juggler/lib/utils');
 const discountTypes = require('../../lib/helpers/DiscountTypes');
+const errCodes = require('../../lib/helpers/ErrorStatusCode');
 
 /**
  * Merge include options of default scope with runtime include option.
@@ -17,17 +18,17 @@ module.exports = function(Model) {
 
   let app;
 
-  Model.disableRemoteMethodByName('destroyById', true);
-  Model.disableRemoteMethodByName('deleteById',  true);
-  Model.disableRemoteMethodByName('removeById',  true);
+  Model.disableRemoteMethodByName('destroyById');
+  Model.disableRemoteMethodByName('deleteById');
+  Model.disableRemoteMethodByName('removeById');
 
   Model.once('attached', (a) => {
     app = a;
     // validate if paymentType is available for a venue
     // or is available at all
     Model.validateAsync('paymentTypeId', isPaymentTypeEnabled, {
-      code: 'UnprocessableEntity',
-      message: 'PaymentType is not available',
+      code: 422,
+      message: errCodes.ERR_TXN_PAYMENT_TYPE_NOT_AVAILABLE,
     });
 
     function isPaymentTypeEnabled(err, next) {
@@ -127,7 +128,8 @@ module.exports = function(Model) {
           let promise = getProductPriceFromTransactionDetail(
             ctx,
             detail,
-            detail.productId
+            detail.productId,
+            next
           );
           promises.push(promise);
         });
@@ -248,7 +250,15 @@ module.exports = function(Model) {
         });
     });
 
-    function getProductPriceFromTransactionDetail(ctx, detail, productId) {
+    /**
+     * @param {Object} ctx LoopbackContext
+     * @param {Object} detail TransactionDetail Model instance
+     * @param {Integer} productId Product Id
+     * @param {Function} next callback
+     * @return {Object} ctx LoopbackContext
+     */
+    function getProductPriceFromTransactionDetail(
+      ctx, detail, productId, next) {
       let promise = Promise.resolve('ready');
       promise = app.models.Product.findById(productId, {
         include: [
@@ -304,8 +314,7 @@ module.exports = function(Model) {
             discount = app.models.Discount.getProductDiscounts(
               productPricing,
               discountObj,
-              detail.quantity,
-              ctx.instance.__data['boughtBy']
+              detail.quantity
             );
             if (discountTypeId ===
               discountTypes.DISCOUNT_TYPE_MEMBERSHIP_PRICE_OFF) {
@@ -327,6 +336,18 @@ module.exports = function(Model) {
                 productId
               );
             }
+            // if (discountTypeId === discountTypes.DISCOUNT_TYPE_GROUP_BUY) {
+            //   // check if this user is allowed for group buy discount
+            //   isGroupBuyAllowed(
+            //     ctx,
+            //     discountObj,
+            //     productPricing,
+            //     detail.quantity,
+            //     productId,
+            //     ctx.instance.boughtBy,
+            //     next
+            //   );
+            // }
           }
         }
         return ctx;
@@ -334,6 +355,12 @@ module.exports = function(Model) {
       return promise;
     }
 
+    /**
+     * @param {Object} ctx LoopbackContext
+     * @param {String|Integer} boughtBy User Id
+     * @param {String|Integer} venueId Venue Id
+     * @return {Object} ctx LoopbackContext
+     */
     function isMember(ctx, boughtBy, venueId) {
       return app.models.CardBalance.findOne({
         where: {
@@ -356,6 +383,14 @@ module.exports = function(Model) {
       });
     };
 
+    /**
+     * Handles bonus product discounts
+     * @param {Object} ctx LoopbackContext
+     * @param {Object} discount Discount Model instance for current product
+     * @param {Object} productPricing Product Pricing Model instance for current product
+     * @param {String|Integer} productId Product Id
+     * @return {Object} ctx LoopbackContext
+     */
     function addBonusProduct(ctx, discount, productPricing, productId) {
       app.models.BonusProduct.findOne({
         where: {
@@ -415,6 +450,63 @@ module.exports = function(Model) {
             };
             ctx.hookState.relations['transactionDetail'].push(freeProduct);
           }
+        }
+        return ctx;
+      });
+    };
+
+    /**
+     * Handles Group Buy discount
+     * @param {Object} ctx LoopbackContext
+     * @param {Object} discount Discount Model
+     * @param {Integer} quantity quantity for current product
+     * @param {Object} productId Product Id for current product
+     * @param {String} boughtBy User id
+     * @param {Function} next callback function
+     * @return {Object} ctx LoopbackContext
+     */
+    function isGroupBuyAllowed(
+      ctx, discount, productPricing, quantity, productId, boughtBy, next) {
+      if (quantity > 1) {
+        let error = new Error();
+        error.status = 422;
+        error.code = 'UnprocessableEntity';
+        error.message = 'Group Buy product quantity cannot be more than 1.';
+        next(error);
+      }
+      app.models.Transaction.findOne({
+        where: {
+          boughtBy: boughtBy,
+        },
+        include: [
+          {
+            relation: 'transactionDetail',
+            scope: {
+              where: {
+                productId: productId,
+              },
+            },
+          },
+          {
+            relation: 'product',
+            scope: {
+              include: {
+                relation: 'productDiscount',
+                scope: {
+                  where: {
+                    discountId: discount.id,
+                  },
+                },
+              },
+            },
+          },
+        ],
+      }, (err, instance) => {
+        if (null === instance) {
+          ctx.instance.__data['discount'][productId] = discount.flatPrice;
+        } else {
+          // allow with productPricing.unitPrice
+          ctx.instance.__data['discount'][productId] = productPricing.unitPrice;
         }
         return ctx;
       });

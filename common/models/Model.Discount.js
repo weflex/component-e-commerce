@@ -16,13 +16,11 @@ module.exports = function(Model) {
      * @param {String|Array|Object} productPricing The latest price for product
      * @param {String|Array|Object} discount Discount to be applied
      * @param {String|Integer} quantity Number of products bought
-     * @param {String|Object} boughtBy User who bought the products
      */
     Model.getProductDiscounts = (
       productPricing,
       discount,
-      quantity,
-      boughtBy
+      quantity
     ) => {
       let appliedDiscount = 0;
       if (discount.discountTypeId ===
