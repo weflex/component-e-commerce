@@ -310,7 +310,10 @@ module.exports = function(Model) {
           ctx.instance.__data['discount'][productId] = discount;
           if (data.productDiscount.length > 0) {
             const discountObj = data.productDiscount[0].discount;
-            const discountTypeId = discountObj.discountTypeId;
+            let discountTypeId = undefined;
+            if (discountObj !== undefined && discountObj !== null) {
+              discountTypeId = discountObj.discountTypeId;
+            }
             discount = app.models.Discount.getProductDiscounts(
               productPricing,
               discountObj,
@@ -336,18 +339,18 @@ module.exports = function(Model) {
                 productId
               );
             }
-            // if (discountTypeId === discountTypes.DISCOUNT_TYPE_GROUP_BUY) {
-            //   // check if this user is allowed for group buy discount
-            //   isGroupBuyAllowed(
-            //     ctx,
-            //     discountObj,
-            //     productPricing,
-            //     detail.quantity,
-            //     productId,
-            //     ctx.instance.boughtBy,
-            //     next
-            //   );
-            // }
+            if (discountTypeId === discountTypes.DISCOUNT_TYPE_GROUP_BUY) {
+              // check if this user is allowed for group buy discount
+              isGroupBuyAllowed(
+                ctx,
+                discountObj,
+                productPricing,
+                detail.quantity,
+                productId,
+                ctx.instance.boughtBy,
+                next
+              );
+            }
           }
         }
         return ctx;
@@ -472,7 +475,7 @@ module.exports = function(Model) {
         error.status = 422;
         error.code = 'UnprocessableEntity';
         error.message = 'Group Buy product quantity cannot be more than 1.';
-        next(error);
+        // next(error);
       }
       app.models.Transaction.findOne({
         where: {

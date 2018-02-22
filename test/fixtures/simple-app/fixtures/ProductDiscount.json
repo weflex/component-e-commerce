@@ -28,7 +28,7 @@
     "discountId": "2",
     "productId": "2",
     "startDate": "2018-01-18T13:49:22.205Z",
-    "endDate": "2018-02-18T13:49:22.205Z",
+    "endDate": null,
     "deletedAt": null,
     "deletedBy": null
   }

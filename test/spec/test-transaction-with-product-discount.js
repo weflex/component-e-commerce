@@ -1252,9 +1252,8 @@ describe('Transaction with product discount', () => {
           password: 'password',
         })
         .expect(200, (err, res) => {
-          let today = new Date();
-          let tomorrow = today.getDate() + 1;
-          console.log(tomorrow);
+          let tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
           expect(err).toBe(null);
           token = res.body.id;
           expect(res.body.userId).toEqual(2);
