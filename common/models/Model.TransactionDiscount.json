@@ -66,6 +66,14 @@
       "options": {
         "validate": true
       }
+    },
+    "discountType": {
+      "type": "belongsTo",
+      "model": "DiscountType",
+      "foreignKey": "discountTypeId",
+      "options": {
+        "validate": true
+      }
     }
   },
   "acls": [
