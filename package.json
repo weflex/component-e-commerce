@@ -10,7 +10,8 @@
     "lodash": "4.6.1",
     "moment": "^2.20.1",
     "qs": "^6.5.1",
-    "strong-globalize": "^3.0.0"
+    "strong-globalize": "^3.0.0",
+    "xlsx": "^0.12.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

@@ -85,9 +85,8 @@ module.exports = function(Model) {
               callback(err);
             }
           });
-      }, (err) => {
-        next();
       });
+      next();
     });
 
     /** ************* OPERATION HOOK ************* **/

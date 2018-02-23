@@ -1,6 +1,7 @@
 
 const jugglerUtils = require('loopback-datasource-juggler/lib/utils');
 const discountTypes = require('../../lib/helpers/DiscountTypes');
+const errCodes = require('../../lib/helpers/ErrorStatusCode');
 
 /**
  * Merge include options of default scope with runtime include option.
@@ -26,8 +27,8 @@ module.exports = function(Model) {
     // validate if paymentType is available for a venue
     // or is available at all
     Model.validateAsync('paymentTypeId', isPaymentTypeEnabled, {
-      code: 'UnprocessableEntity',
-      message: 'PaymentType is not available',
+      code: 422,
+      message: errCodes.ERR_TXN_PAYMENT_TYPE_NOT_AVAILABLE,
     });
 
     function isPaymentTypeEnabled(err, next) {
@@ -115,6 +116,8 @@ module.exports = function(Model) {
         ctx.instance.__data['qty'] = [];
         // this collection would hold the discount for each product
         ctx.instance.__data['discount'] = [];
+        // this collection would hold the active Group Buy product IDs
+        ctx.instance.__data['activeGroupBuyProduct'] = [];
         // this collection would hold the bonusProduct discount for same product
         ctx.instance.__data['bonusProduct'] = [];
         // this collection would hold the isMembershipDiscount for each product
@@ -127,7 +130,8 @@ module.exports = function(Model) {
           let promise = getProductPriceFromTransactionDetail(
             ctx,
             detail,
-            detail.productId
+            detail.productId,
+            next
           );
           promises.push(promise);
         });
@@ -248,7 +252,15 @@ module.exports = function(Model) {
         });
     });
 
-    function getProductPriceFromTransactionDetail(ctx, detail, productId) {
+    /**
+     * @param {Object} ctx LoopbackContext
+     * @param {Object} detail TransactionDetail Model instance
+     * @param {Integer} productId Product Id
+     * @param {Function} next callback
+     * @return {Object} ctx LoopbackContext
+     */
+    function getProductPriceFromTransactionDetail(
+      ctx, detail, productId, next) {
       let promise = Promise.resolve('ready');
       promise = app.models.Product.findById(productId, {
         include: [
@@ -300,12 +312,14 @@ module.exports = function(Model) {
           ctx.instance.__data['discount'][productId] = discount;
           if (data.productDiscount.length > 0) {
             const discountObj = data.productDiscount[0].discount;
-            const discountTypeId = discountObj.discountTypeId;
+            let discountTypeId = undefined;
+            if (discountObj !== undefined && discountObj !== null) {
+              discountTypeId = discountObj.discountTypeId;
+            }
             discount = app.models.Discount.getProductDiscounts(
               productPricing,
               discountObj,
-              detail.quantity,
-              ctx.instance.__data['boughtBy']
+              detail.quantity
             );
             if (discountTypeId ===
               discountTypes.DISCOUNT_TYPE_MEMBERSHIP_PRICE_OFF) {
@@ -314,6 +328,26 @@ module.exports = function(Model) {
               ctx.instance.__data['isMembershipDiscount'][productId] = false;
             }
             ctx.instance.__data['discount'][productId] = discount;
+
+            // run once per transaction
+            // NOTE: group buy product must be checked before bonus product
+            // to prevent group buy product being offered as a bonus product
+            if (ctx.instance.__data['activeGroupBuyProduct'].length === 0) {
+              getActiveGroupBuyProducts(ctx);
+            }
+
+            if (discountTypeId === discountTypes.DISCOUNT_TYPE_GROUP_BUY) {
+              // check if this user is allowed for group buy discount
+              isGroupBuyAllowed(
+                ctx,
+                discountObj,
+                productPricing,
+                detail.quantity,
+                productId,
+                ctx.instance.boughtBy,
+                next
+              );
+            }
             if (discountTypeId ===
               discountTypes.DISCOUNT_TYPE_BONUS_PRODUCT) {
               // TODO: @prashant
@@ -334,6 +368,12 @@ module.exports = function(Model) {
       return promise;
     }
 
+    /**
+     * @param {Object} ctx LoopbackContext
+     * @param {String|Integer} boughtBy User Id
+     * @param {String|Integer} venueId Venue Id
+     * @return {Object} ctx LoopbackContext
+     */
     function isMember(ctx, boughtBy, venueId) {
       return app.models.CardBalance.findOne({
         where: {
@@ -356,6 +396,14 @@ module.exports = function(Model) {
       });
     };
 
+    /**
+     * Handles bonus product discounts
+     * @param {Object} ctx LoopbackContext
+     * @param {Object} discount Discount Model instance for current product
+     * @param {Object} productPricing Product Pricing Model instance for current product
+     * @param {String|Integer} productId Product Id
+     * @return {Object} ctx LoopbackContext
+     */
     function addBonusProduct(ctx, discount, productPricing, productId) {
       app.models.BonusProduct.findOne({
         where: {
@@ -377,11 +425,15 @@ module.exports = function(Model) {
       }, (err, instance) => {
         if (null !== instance) {
           const data = instance.toJSON();
-          if (data.getProduct.id === data.withProductId) {
+          const groupBuyProducts = ctx.instance.__data['activeGroupBuyProduct'];
+
+          // active group buy products are not eligible for bonus product discount
+          if (groupBuyProducts.indexOf(data.getProduct.id) === -1) {
+            if (data.getProduct.id === data.withProductId) {
             // same product, thus update the quantity,
             // with discount as price of product
 
-            ctx.instance.__data['qty'] =
+              ctx.instance.__data['qty'] =
               ctx.instance.__data['qty'].map(
                 (qty, idx) => {
                   if (idx == productId) {
@@ -389,7 +441,7 @@ module.exports = function(Model) {
                   }
                   return qty;
                 });
-            ctx.instance.__data['discount'] =
+              ctx.instance.__data['discount'] =
               ctx.instance.__data['discount'].map(
                 (discount, idx) => {
                   if (idx == productId) {
@@ -397,24 +449,129 @@ module.exports = function(Model) {
                   }
                   return discount;
                 });
-            ctx.instance.__data['bonusProduct'][productId] = data.freeQty;
-          } else if (data.getProduct.id !== data.withProductId) {
+              ctx.instance.__data['bonusProduct'][productId] = data.freeQty;
+            } else if (data.getProduct.id !== data.withProductId) {
             // add this product to ctx.hookState.relations['transactionDetail']
             // with unitPrice, quantity and discount as price of product
 
             // set it as bonus product so as to update
             // when transaction discounts are available
-            let freeProductPricing = data.getProduct.productPricing[0];
-            let freeProduct = {
-              productId: data.getProduct.id,
-              productPricingId: freeProductPricing.id,
-              quantity: data.freeQty,
-              discount: freeProductPricing.unitPrice * data.freeQty,
-              subTotal: freeProductPricing.unitPrice * data.freeQty,
-              netTotal: 0,
-            };
-            ctx.hookState.relations['transactionDetail'].push(freeProduct);
+              let freeProductPricing = data.getProduct.productPricing[0];
+              let freeProduct = {
+                productId: data.getProduct.id,
+                productPricingId: freeProductPricing.id,
+                quantity: data.freeQty,
+                discount: freeProductPricing.unitPrice * data.freeQty,
+                subTotal: freeProductPricing.unitPrice * data.freeQty,
+                netTotal: 0,
+              };
+              ctx.hookState.relations['transactionDetail'].push(freeProduct);
+            }
           }
+        }
+        return ctx;
+      });
+    };
+
+    /**
+     * Gets Active Group Buy discount
+     * @param {Object} ctx LoopbackContext
+     * @return {Object} LoopbackContext
+     */
+    function getActiveGroupBuyProducts(ctx) {
+      app.models.ProductDiscount.find({
+        where: {
+          and: [{
+            or: [{
+              endDate: null,
+            }, {
+              endDate: {
+                gte: Date.now(),
+              },
+            }],
+          },
+          {
+            startDate: {
+              lte: Date.now(),
+            },
+          },
+          {
+            discountTypeId: discountTypes.DISCOUNT_TYPE_GROUP_BUY,
+          }],
+        },
+      }, (err, instance) => {
+        if (null !== instance) {
+          instance.forEach((productDiscount) => {
+            ctx.instance.__data['activeGroupBuyProduct'].push(
+              productDiscount.productId);
+          });
+        } else {
+          ctx.instance.__data['activeGroupBuyProduct'].push('none');
+        }
+        return ctx;
+      });
+    }
+
+    /**
+     * Handles Group Buy discount
+     * @param {Object} ctx LoopbackContext
+     * @param {Object} discount Discount Model
+     * @param {Integer} quantity quantity for current product
+     * @param {Object} productId Product Id for current product
+     * @param {String} boughtBy User id
+     * @param {Function} next callback function
+     * @return {Object} ctx LoopbackContext
+     */
+    function isGroupBuyAllowed(
+      ctx, discount, productPricing, quantity, productId, boughtBy, next) {
+      if (quantity > 1) {
+        let error = new Error();
+        error.status = 422;
+        error.code = 'UnprocessableEntity';
+        error.message = 'Group Buy product quantity cannot be more than 1.';
+        next(error);
+      }
+      app.models.Transaction.findOne({
+        where: {
+          boughtBy: boughtBy,
+        },
+        include: [
+          {
+            relation: 'transactionDetail',
+            scope: {
+              where: {
+                productId: productId,
+              },
+              include: {
+                relation: 'product',
+                scope: {
+                  include: {
+                    relation: 'productDiscount',
+                    scope: {
+                      where: {
+                        discountId: discount.id,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      }, (err, instance) => {
+        let appliedDiscountId = undefined;
+        const data = instance.toJSON();
+        if (data !== null) {
+          appliedDiscountId =
+            data.transactionDetail[0].product.productDiscount.discountId;
+        }
+        // when same user has bought a product with group buy discount or
+        // available group buy discount is 0, offered discount should be 0
+        // else offered discount should be discount.flatPrice
+        if (appliedDiscountId == discount.id || discount.groupBuyAvailable == 0) { // eslint-disable-line
+          ctx.instance.__data['discount'][productId] = 0;
+        } else {
+          ctx.instance.__data['discount'][productId] = discount.flatPrice;
         }
         return ctx;
       });

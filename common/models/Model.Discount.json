@@ -42,6 +42,9 @@
     "memberPriceOff": {
       "type": "Number"
     },
+    "groupBuyAvailable": {
+      "type": "Number"
+    },
     "modifiedBy": {
       "type": "String"
     },
