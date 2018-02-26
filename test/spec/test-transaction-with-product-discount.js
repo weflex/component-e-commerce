@@ -860,6 +860,14 @@ describe('Transaction with product discount', () => {
     });
 
     it('Add transaction with membership discount should return 200', (next) => {
+      let tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      // NOTE: override fixtures for product that has cash card which expires
+      // otherwise the test will fail on future dates
+      app.models.Product.findById(4, (err, instance) => {
+        instance.expiresAt = tomorrow;
+        instance.save();
+      });
       const txn = {
         boughtBy: '2',
         boughtAt: '2018-01-19T13:49:22.205Z',
@@ -954,6 +962,7 @@ describe('Transaction with product discount', () => {
 
     it('Add transaction with membership discount when no membership should return 200', // eslint-disable-line
       (next) => {
+        // NOTE: remove all cash cards to simulate user with no membership
         app.models.CardBalance.destroyAll();
         const txn = {
           boughtBy: '2',
@@ -1427,7 +1436,7 @@ describe('Transaction with product discount', () => {
       });
   });
 
-  xdescribe('Group buy discount for same user', () => {
+  describe('Group buy discount for same user', () => {
     let token = null;
     beforeAll((next) => {
       request(app)
@@ -1476,6 +1485,7 @@ describe('Transaction with product discount', () => {
           });
         });
     });
+
     it('Add transaction with group buy discount again for same user should return 200 with discount 0', // eslint-disable-line
       (next) => {
         const txn = {

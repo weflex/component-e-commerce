@@ -549,6 +549,7 @@ module.exports = function(Model) {
                     relation: 'productDiscount',
                     scope: {
                       where: {
+                        discountTypeId: discountTypes.DISCOUNT_TYPE_GROUP_BUY,
                         discountId: discount.id,
                       },
                     },
@@ -562,13 +563,18 @@ module.exports = function(Model) {
         let appliedDiscountId = undefined;
         const data = instance.toJSON();
         if (data !== null) {
-          appliedDiscountId =
-            data.transactionDetail[0].product.productDiscount.discountId;
+          appliedDiscountId = data.transactionDetail.map((detail) => {
+            return detail.product.productDiscount.map((pd) => {
+              return pd.discountId;
+            });
+          });
+          // NOTE: flatten the array of applied discount Id
+          appliedDiscountId = [].concat.apply([], appliedDiscountId);
         }
         // when same user has bought a product with group buy discount or
         // available group buy discount is 0, offered discount should be 0
         // else offered discount should be discount.flatPrice
-        if (appliedDiscountId == discount.id || discount.groupBuyAvailable == 0) { // eslint-disable-line
+        if (appliedDiscountId.indexOf(discount.id) > -1 || discount.groupBuyAvailable == 0) { // eslint-disable-line
           ctx.instance.__data['discount'][productId] = 0;
         } else {
           ctx.instance.__data['discount'][productId] = discount.flatPrice;
