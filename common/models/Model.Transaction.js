@@ -561,8 +561,8 @@ module.exports = function(Model) {
         ],
       }, (err, instance) => {
         let appliedDiscountId = undefined;
-        const data = instance.toJSON();
-        if (data !== null) {
+        if (null !== instance) {
+          const data = instance.toJSON();
           appliedDiscountId = data.transactionDetail.map((detail) => {
             return detail.product.productDiscount.map((pd) => {
               return pd.discountId;
@@ -574,7 +574,8 @@ module.exports = function(Model) {
         // when same user has bought a product with group buy discount or
         // available group buy discount is 0, offered discount should be 0
         // else offered discount should be discount.flatPrice
-        if (appliedDiscountId.indexOf(discount.id) > -1 || discount.groupBuyAvailable == 0) { // eslint-disable-line
+        if ((appliedDiscountId && appliedDiscountId.indexOf(discount.id) > -1) || // eslint-disable-line
+          discount.groupBuyAvailable == 0) {
           ctx.instance.__data['discount'][productId] = 0;
         } else {
           ctx.instance.__data['discount'][productId] = discount.flatPrice;

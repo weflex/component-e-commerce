@@ -1263,7 +1263,7 @@ describe('Transaction with product discount', () => {
         .post('/api/users/login')
         .set('Accept', 'application/json')
         .send({
-          username: 'generalUser',
+          username: 'venue1Member',
           password: 'password',
         })
         .expect(200, (err, res) => {
@@ -1271,7 +1271,7 @@ describe('Transaction with product discount', () => {
           tomorrow.setDate(tomorrow.getDate() + 1);
           expect(err).toBe(null);
           token = res.body.id;
-          expect(res.body.userId).toEqual(2);
+          expect(res.body.userId).toEqual(4);
           app.models.Discount.create({
             discountTypeId: '11',
             venueId: '1',
@@ -1308,7 +1308,7 @@ describe('Transaction with product discount', () => {
 
     it('Add transaction with group buy discount should return 200', (next) => {
       const txn = {
-        boughtBy: '2',
+        boughtBy: '4',
         boughtAt: '2018-01-19T13:49:22.205Z',
         currency: 'CNY',
         venueId: '1',
@@ -1402,7 +1402,7 @@ describe('Transaction with product discount', () => {
     it('Add transaction with more than 1 group buy product should return 200',
       (next) => {
         const txn = {
-          boughtBy: '2',
+          boughtBy: '4',
           boughtAt: '2018-01-19T13:49:22.205Z',
           currency: 'CNY',
           venueId: '1',
