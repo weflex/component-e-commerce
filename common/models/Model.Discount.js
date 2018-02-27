@@ -16,44 +16,40 @@ module.exports = function(Model) {
      * @param {String|Array|Object} productPricing The latest price for product
      * @param {String|Array|Object} discount Discount to be applied
      * @param {String|Integer} quantity Number of products bought
-     * @param {String|Object} boughtBy User who bought the products
      */
     Model.getProductDiscounts = (
       productPricing,
       discount,
-      quantity,
-      boughtBy
+      quantity
     ) => {
       let appliedDiscount = 0;
-      if (discount.discountTypeId ===
-        discountTypes.DISCOUNT_TYPE_FLAT_PER_PRODUCT
-      ) {
+      let discountTypeId = undefined;
+      if (discount !== undefined && discount !== null) {
+        discountTypeId = discount.discountTypeId;
+      }
+      if (discountTypeId === discountTypes.DISCOUNT_TYPE_FLAT_PER_PRODUCT) {
         appliedDiscount = quantity * discount.flatPrice;
       }
 
-      if (discount.discountTypeId ===
-        discountTypes.DISCOUNT_TYPE_PCT_PER_PRODUCT) {
+      if (discountTypeId === discountTypes.DISCOUNT_TYPE_PCT_PER_PRODUCT) {
         appliedDiscount =
           quantity * ((discount.pctOfPrice * productPricing.unitPrice) / 100);
       }
 
-      if (discount.discountTypeId ===
-        discountTypes.DISCOUNT_TYPE_FLAT_WHEN_MIN_QTY) {
+      if (discountTypeId === discountTypes.DISCOUNT_TYPE_FLAT_WHEN_MIN_QTY) {
         if (quantity >= discount.minQty) {
           appliedDiscount = discount.flatPrice;
         }
       }
 
-      if (discount.discountTypeId ===
-        discountTypes.DISCOUNT_TYPE_PCT_WHEN_MIN_QTY) {
+      if (discountTypeId === discountTypes.DISCOUNT_TYPE_PCT_WHEN_MIN_QTY) {
         if (quantity >= discount.minQty) {
           appliedDiscount =
             (discount.pctOfPrice * productPricing.unitPrice) / 100;
         }
       }
 
-      if (discount.discountTypeId ===
-        discountTypes.DISCOUNT_TYPE_MEMBERSHIP_PRICE_OFF) {
+      if (discountTypeId === discountTypes.DISCOUNT_TYPE_MEMBERSHIP_PRICE_OFF) {
         // check membership card exists and is valid expiresAt is not set
         // and only if exists return discount.memberPriceOff
         // TODO: @prashant
@@ -67,8 +63,11 @@ module.exports = function(Model) {
 
     Model.getMembershipDiscount = (discount, quantity, boughtBy) => {
       let appliedDiscount = 0;
-      if (discount.discountTypeId ===
-        discountTypes.DISCOUNT_TYPE_MEMBERSHIP_PRICE_OFF) {
+      let discountTypeId = undefined;
+      if (discount !== undefined && discount !== null) {
+        discountTypeId = discount.discountTypeId;
+      }
+      if (discountTypeId === discountTypes.DISCOUNT_TYPE_MEMBERSHIP_PRICE_OFF) {
         // check membership card exists and is valid expiresAt is not set
         // and only if exists return discount.memberPriceOff
         // TODO: @prashant
@@ -107,26 +106,28 @@ module.exports = function(Model) {
      */
     Model.getTransactionDiscounts = (discount, quantity, amount) => {
       let appliedDiscount = 0;
-      if (discount.discountTypeId ===
-        discountTypes.DISCOUNT_TYPE_PCT_WHEN_MIN_TXN_AMT) {
+      let discountTypeId = undefined;
+      if (discount !== undefined && discount !== null) {
+        discountTypeId = discount.discountTypeId;
+      }
+      if (discountTypeId === discountTypes.DISCOUNT_TYPE_PCT_WHEN_MIN_TXN_AMT) {
         appliedDiscount = 0;
       }
 
-      if (discount.discountTypeId ===
+      if (discountTypeId ===
         discountTypes.DISCOUNT_TYPE_FLAT_WHEN_MIN_TXN_AMT) {
         appliedDiscount = 0;
       }
 
-      if (discount.discountTypeId ===
+      if (discountTypeId ===
         discountTypes.DISCOUNT_TYPE_PCT_WHEN_MIN_QTY_PER_TXN) {
-        // TODO: @prashant
-        // add configured bonus products to the cart
+        // adds configured bonus products to the cart
         // by either updating the quantity if same product
         // or getProduct with unitPrice 0.0
         appliedDiscount = 0;
       }
 
-      if (discount.discountTypeId ===
+      if (discountTypeId ===
         discountTypes.DISCOUNT_TYPE_FLAT_WHEN_MIN_QTY_PER_TXN) {
         appliedDiscount = 0;
       }

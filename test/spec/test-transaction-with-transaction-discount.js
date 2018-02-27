@@ -13,6 +13,11 @@ describe('Transaction with transaction discount', () => {
     let token = null;
     beforeAll((next) => {
       transactionFixtureHelper.setupFixturesWithoutDiscounts(app);
+      const resetModels = [
+        'Discount',
+        'TransactionDiscount',
+      ];
+      app.dataSources.db.automigrate(resetModels);
       request(app)
         .post('/api/users/login')
         .set('Accept', 'application/json')
@@ -44,7 +49,8 @@ describe('Transaction with transaction discount', () => {
             createdAt: '2018-01-18T13:49:22.205Z',
             createdBy: 'venue1Owner',
             venueId: '1',
-            discountId: '13',
+            discountId: '1',
+            discountTypeId: '7',
             startDate: '2018-01-18T13:49:22.205Z',
             endDate: null,
             deletedBy: null,
@@ -189,7 +195,8 @@ describe('Transaction with transaction discount', () => {
             createdAt: '2018-01-18T13:49:22.205Z',
             createdBy: 'venue1Owner',
             venueId: '1',
-            discountId: '14',
+            discountId: '2',
+            discountTypeId: '8',
             startDate: '2018-01-18T13:49:22.205Z',
             endDate: null,
             deletedBy: null,
@@ -334,7 +341,8 @@ describe('Transaction with transaction discount', () => {
             createdAt: '2018-01-18T13:49:22.205Z',
             createdBy: 'venue1Owner',
             venueId: '1',
-            discountId: '15',
+            discountId: '3',
+            discountTypeId: '9',
             startDate: '2018-01-18T13:49:22.205Z',
             endDate: null,
             deletedBy: null,
@@ -479,7 +487,8 @@ describe('Transaction with transaction discount', () => {
             createdAt: '2018-01-18T13:49:22.205Z',
             createdBy: 'venue1Owner',
             venueId: '1',
-            discountId: '16',
+            discountId: '4',
+            discountTypeId: '10 ',
             startDate: '2018-01-18T13:49:22.205Z',
             endDate: null,
             deletedBy: null,

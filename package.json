@@ -1,5 +1,5 @@
 {
-  "name": "component-commerce",
+  "name": "@weflex/component-commerce",
   "version": "1.0.0",
   "description": "A package to manage e-commerce",
   "main": "./lib/",
@@ -10,7 +10,8 @@
     "lodash": "4.6.1",
     "moment": "^2.20.1",
     "qs": "^6.5.1",
-    "strong-globalize": "^3.0.0"
+    "strong-globalize": "^3.0.0",
+    "xlsx": "^0.12.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
