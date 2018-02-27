@@ -98,12 +98,11 @@ module.exports = function(Model) {
       if (currentFilter.order === undefined) {
         currentFilter.order = 'id DESC';
       }
-      Model.find(currentFilter, {
-        where: {
-          cardOwner: userId,
-          membershipCard: membershipCard,
-        },
-      }, (err, instance) => {
+      currentFilter.where = {
+        cardOwner: userId,
+        membershipCard: membershipCard,
+      };
+      Model.find(currentFilter, (err, instance) => {
         /* istanbul ignore if */
         if (err) {
           console.log(err);

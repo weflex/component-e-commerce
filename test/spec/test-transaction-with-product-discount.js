@@ -1589,13 +1589,13 @@ describe('Transaction with product discount', () => {
         .post('/api/users/login')
         .set('Accept', 'application/json')
         .send({
-          username: 'generalUser',
+          username: 'venue1Member',
           password: 'password',
         })
         .expect(200, (err, res) => {
           expect(err).toBe(null);
           token = res.body.id;
-          expect(res.body.userId).toEqual(2);
+          expect(res.body.userId).toEqual(4);
           next();
         });
     });
@@ -1604,6 +1604,34 @@ describe('Transaction with product discount', () => {
       const loopbackContext = LoopBackContext.getCurrentContext();
       loopbackContext.set('currentUser', null);
       next();
+    });
+
+    it('Transaction payment success through cash', (next) => {
+      LoopBackContext.runInContext(() => {
+        request(app)
+          .get('/api/transaction/9/pay/')
+          .set('Accept', 'application/json')
+          .query({'access_token': token})
+          .expect(200, (err, res) => {
+            expect(res.err).not.toBe(null);
+            expect(res.body.error.statusCode).toBe(404);
+            expect(res.body.error.name).toBe('Error');
+            next();
+          });
+      });
+    });
+
+    it('Transaction payment success through cash', (next) => {
+      request(app)
+        .get('/api/transaction/9/pay/4')
+        .set('Accept', 'application/json')
+        .query({'access_token': token})
+        .expect(200, (err, res) => {
+          expect(res.body.transaction).not.toBe(null);
+          console.log('Tony');
+          console.log(res.body);
+          next();
+        });
     });
 
     it('List transaction should return transaction with all related details',

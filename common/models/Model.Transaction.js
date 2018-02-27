@@ -661,7 +661,158 @@ module.exports = function(Model) {
       }
     };
 
-    /** ********** Remote methods ********** **/
+    /** ********** REMOTE METHODS ********** **/
+
+    Model.pay = (id, paymentTypeId, req, options, res, next) => {
+      let userId = null;
+      if (undefined !== options.accessToken) {
+        userId = options.accessToken && options.currentUser.id;
+      }
+      const VenuePaymentConfig = app.models.VenuePaymentConfig;
+      const PaymentType = app.models.PaymentType;
+      const Transaction = app.models.Transaction;
+
+      const paymentGateway = require('../../lib/helpers/gateway')(app);
+
+      VenuePaymentConfig.findById(paymentTypeId,
+        (vpcErr, venuePaymentConfig) => {
+          if (vpcErr) {
+            const err = new Error();
+            err.code = 404;
+            err.message = errCodes.ERR_TXN_VENUE_PAYMENT_TYPE_NOT_FOUND;
+            throw err;
+          }
+          if (null !== venuePaymentConfig) {
+            PaymentType.findById(venuePaymentConfig.paymentTypeId,
+              (ptErr, paymentType) => {
+                if (
+                  ptErr || vpcErr || venuePaymentConfig === null ||
+              paymentType === null
+                ) {
+                  const err = new Error();
+                  err.code = 404;
+                  err.message = errCodes.ERR_TXN_PAYMENT_TYPE_NOT_FOUND;
+                  throw err;
+                }
+                if (
+                  (venuePaymentConfig && !venuePaymentConfig.isEnabled) ||
+              (paymentType && !paymentType.isEnabled)
+                ) {
+                  const err = new Error();
+                  err.code = 422;
+                  err.message = errCodes.ERR_TXN_PAYMENT_TYPE_NOT_AVAILABLE;
+                  throw err;
+                }
+                Transaction.findById(id, {
+                  include: [
+                    {
+                      relation: 'transactionDetail',
+                      scope: {
+                        include: {
+                          relation: 'product',
+                          scope: {
+                            include: {
+                              relation: 'productDiscount',
+                              scope: {
+                                relation: 'discount',
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  ],
+                }, (txnErr, txn) => {
+                  if (txnErr) {
+                    const err = new Error();
+                    err.code = 404;
+                    err.message = errCodes.ERR_TXN_NOT_FOUND;
+                  }
+                  let txnStatus = paymentGateway.processPayment(
+                    req,
+                    paymentType.paymentTypeId,
+                    txn
+                  );
+                  let txnDetail = txn.transactionDetail;
+                  let groupBuyDiscounts = [];
+                  txnDetail.forEach((detail) => {
+                    let pd = detail.product.productDiscount;
+                    if (discountTypes.DISCOUNT_TYPE_GROUP_BUY ===
+                      pd.discountTypeId) {
+                      groupBuyDiscounts.push(pd.discount);
+                    }
+                  });
+                  if (true === txnStatus) {
+                    // update transaction as completed
+                    txn.updateAttributes({
+                      transactionStatusId: txnStatus.TXN_STATUS_COMPLETED,
+                    });
+                    // update available group buy quantity
+                    groupBuyDiscounts.forEach((discount) => {
+                      discount.updateAttributes({
+                        groupBuyAvailable: discount.groupBuyAvailable - 1,
+                      });
+                    });
+                    res.json({
+                      transaction: txn,
+                      result: 'success',
+                    });
+                  } else {
+                    txn.updateAttributes({
+                      transactionStatusId: txnStatus.TXN_STATUS_PROCESSING,
+                    });
+                    res.json({
+                      transaction: txn,
+                      result: 'failed',
+                    });
+                  }
+                  next();
+                });
+              });
+          }
+        });
+    };
+
+    Model.remoteMethod('pay', {
+      description: 'Set a model instance with all details',
+      accepts: [
+        {
+          arg: 'id',
+          type: 'number',
+          description: 'Transaction ID',
+        },
+        {
+          arg: 'paymentTypeId',
+          type: 'number',
+          description: 'Venue Payment Config ID',
+        },
+        {
+          arg: 'req',
+          type: 'object',
+          http: {
+            source: 'req',
+          },
+        },
+        {
+          arg: 'options',
+          type: 'object',
+          http: 'optionsFromRequest',
+        },
+        {
+          arg: 'res',
+          type: 'object',
+          http: {
+            source: 'res',
+          },
+        },
+      ],
+      http: {
+        verb: 'get',
+        path: '/:id/pay/:paymentTypeId',
+        status: 200,
+        errorStatus: 404,
+      },
+    });
 
     Model.getTransactionDetails = (id, res, next) => {
       const promises = [];

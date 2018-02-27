@@ -59,3 +59,7 @@ typings/
 
 # generated database file when running tests
 commerce-db.json
+
+# pingpp config
+config/pingpp/private_key.pem
+config/pingpp/index.js
