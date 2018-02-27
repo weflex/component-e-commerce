@@ -1,0 +1,47 @@
+[
+  {
+    "paymentTypeId": "1",
+    "venueId": "1",
+    "createdBy": "venue1Member",
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "modifiedBy": null,
+    "modifiedAt": "2018-01-18T13:49:22.205Z",
+    "isEnabled": false
+  },
+  {
+    "paymentTypeId": "3",
+    "venueId": "1",
+    "createdBy": "venue1Member",
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "modifiedBy": null,
+    "modifiedAt": "2018-01-18T13:49:22.205Z",
+    "isEnabled": false
+  },
+  {
+    "paymentTypeId": "5",
+    "venueId": "1",
+    "createdBy": "venue1Member",
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "modifiedBy": null,
+    "modifiedAt": "2018-01-18T13:49:22.205Z",
+    "isEnabled": false
+  },
+  {
+    "paymentTypeId": "7",
+    "venueId": "1",
+    "createdBy": "venue1Member",
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "modifiedBy": null,
+    "modifiedAt": "2018-01-18T13:49:22.205Z",
+    "isEnabled": true
+  },
+  {
+    "paymentTypeId": "9",
+    "venueId": "1",
+    "createdBy": "venue1Member",
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "modifiedBy": null,
+    "modifiedAt": "2018-01-18T13:49:22.205Z",
+    "isEnabled": true
+  }
+]

@@ -1,0 +1,53 @@
+[
+  {
+    "createdBy": "venue1Member",
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "modifiedAt": null,
+    "venueId": 1,
+    "brandDetail": [
+      {
+        "brandName": "None",
+        "locale": "en"
+      },
+      {
+        "brandName": "未知",
+        "locale": "zh"
+      }
+    ],
+    "isEnabled": false
+  },
+  {
+    "createdBy": "venue1Member",
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "modifiedAt": null,
+    "venueId": 1,
+    "brandDetail": [
+      {
+        "brandName": "Whey",
+        "locale": "en"
+      },
+      {
+        "brandName": "为",
+        "locale": "zh"
+      }
+    ],
+    "isEnabled": false
+  },
+  {
+    "createdBy": "venue1Member",
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "modifiedAt": null,
+    "venueId": 1,
+    "brandDetail": [
+      {
+        "brandName": "Wagas",
+        "locale": "en"
+      },
+      {
+        "brandName": "沃歌斯",
+        "locale": "zh"
+      }
+    ],
+    "isEnabled": false
+  }
+]

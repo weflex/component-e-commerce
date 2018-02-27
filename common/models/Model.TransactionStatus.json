@@ -1,0 +1,55 @@
+{
+  "name": "TransactionStatus",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "transaction-status",
+  "strict": true,
+  "idInjection": false,
+  "forceId": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "id": {
+      "type": "Number",
+      "id": true,
+      "generated": true
+    },
+    "createdAt": {
+      "type": "Date",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "transactionStatusDetail": {
+      "type": "hasMany",
+      "model": "TransactionStatusDetail",
+      "foreignKey": "transactionStatusId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

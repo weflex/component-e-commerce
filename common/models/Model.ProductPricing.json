@@ -1,0 +1,82 @@
+{
+  "name": "ProductPricing",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "product-pricing",
+  "strict": true,
+  "idInjection": true,
+  "forceId": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "createdAt": {
+      "type": "Date",
+      "required": true
+    },
+    "createdBy": {
+      "type": "String",
+      "required": true
+    },
+    "unitPrice": {
+      "type": "Number",
+      "required": true
+    },
+    "currency": {
+      "type": "String",
+      "required": true,
+      "default": "CNY"
+    },
+    "notes": {
+      "type": "String"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userCreated": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "createdBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "venue": {
+      "type": "belongsTo",
+      "model": "Venue",
+      "foreignKey": "venueId",
+      "options": {
+        "validate": true
+      }
+    },
+    "product": {
+      "type": "belongsTo",
+      "model": "Product",
+      "foreignKey": "productId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

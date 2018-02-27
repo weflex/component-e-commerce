@@ -1,0 +1,99 @@
+{
+  "name": "TransactionDiscount",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "transaction-discount",
+  "strict": true,
+  "idInjection": true,
+  "forceId": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "createdAt": {
+      "type": "Date",
+      "required": true
+    },
+    "createdBy": {
+      "type": "String",
+      "required": true
+    },
+    "startDate": {
+      "type": "Date",
+      "required": true
+    },
+    "endDate": {
+      "type": "Date"
+    },
+    "deletedAt": {
+      "type": "Date"
+    },
+    "deletedBy": {
+      "type": "String"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userCreated": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "createdBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "userDeleted": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "deletedBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "venue": {
+      "type": "belongsTo",
+      "model": "Venue",
+      "foreignKey": "venueId",
+      "options": {
+        "validate": true
+      }
+    },
+    "discount": {
+      "type": "belongsTo",
+      "model": "Discount",
+      "foreignKey": "discountId",
+      "options": {
+        "validate": true
+      }
+    },
+    "discountType": {
+      "type": "belongsTo",
+      "model": "DiscountType",
+      "foreignKey": "discountTypeId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

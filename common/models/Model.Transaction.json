@@ -1,0 +1,117 @@
+{
+  "name": "Transaction",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "transaction",
+  "strict": true,
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "boughtBy": {
+      "type": "String",
+      "required": true
+    },
+    "boughtAt": {
+      "type": "Date",
+      "required": true
+    },
+    "totalPrice": {
+      "type": "Number",
+      "required": true
+    },
+    "totalDiscount": {
+      "type": "Number",
+      "required": true,
+      "default": 0
+    },
+    "grandTotal": {
+      "type": "Number",
+      "required": true
+    },
+    "currency": {
+      "type": "String",
+      "required": true,
+      "default": "CNY"
+    },
+    "paymentTypeId": {
+      "type": "String"
+    },
+    "transactionDiscountId": {
+      "type": "String"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "boughtBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "venue": {
+      "type": "belongsTo",
+      "model": "Venue",
+      "foreignKey": "venueId",
+      "options": {
+        "validate": true
+      }
+    },
+    "transactionStatus": {
+      "type": "belongsTo",
+      "model": "TransactionStatus",
+      "foreignKey": "transactionStatusId",
+      "options": {
+        "validate": true
+      }
+    },
+    "transactionDetail": {
+      "type": "hasMany",
+      "model": "TransactionDetail",
+      "foreignKey": "transactionId",
+      "options": {
+        "validate": true
+      }
+    },
+    "paymentType": {
+      "type": "belongsTo",
+      "model": "VenuePaymentConfig",
+      "property": "venuePaymentConfigId",
+      "options": {
+        "validate": true
+      }
+    },
+    "transactionDiscount": {
+      "type": "belongsTo",
+      "model": "TransactionDiscount",
+      "foreignKey": "transactionDiscountId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

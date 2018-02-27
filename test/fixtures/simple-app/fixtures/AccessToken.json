@@ -1,0 +1,21 @@
+[
+  {
+    "id": "tokenAdmin",
+    "userId": "admin"
+  }, {
+    "id": "tokenUser",
+    "userId": "generalUser"
+  }, {
+    "id": "tokenVenue1Owner",
+    "userId": "venue1Owner"
+  }, {
+    "id": "tokenVenue1Member",
+    "userId": "venue1Member"
+  }, {
+    "id": "tokenVenue2Owner",
+    "userId": "venue2Owner"
+  }, {
+    "id": "tokenVenue1Member",
+    "userId": "venue2Member"
+  }
+]

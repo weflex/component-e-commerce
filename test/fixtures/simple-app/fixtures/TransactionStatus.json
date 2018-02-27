@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "transactionStatusDetail": [
+      {
+        "transactionStatusId": 1,
+        "status": "Pending",
+        "locale": "en"
+      },
+      {
+        "transactionStatusId": 1,
+        "status": "有待",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "transactionStatusDetail": [
+      {
+        "transactionStatusId": 2,
+        "status": "Completed",
+        "locale": "en"
+      },
+      {
+        "transactionStatusId": 2,
+        "status": "已完成",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "transactionStatusDetail": [
+      {
+        "transactionStatusId": 3,
+        "status": "Refund",
+        "locale": "en"
+      },
+      {
+        "transactionStatusId": 3,
+        "status": "退",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "transactionStatusDetail": [
+      {
+        "transactionStatusId": 4,
+        "status": "Processing",
+        "locale": "en"
+      },
+      {
+        "transactionStatusId": 4,
+        "status": "处理",
+        "locale": "zh"
+      }
+    ]
+  }
+]

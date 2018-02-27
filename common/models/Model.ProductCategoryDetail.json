@@ -1,0 +1,59 @@
+{
+  "name": "ProductCategoryDetail",
+  "base": "PersistedModel",
+  "indexes": {
+    "unique_product_category": {
+      "keys": {
+        "productCategoryId": 1,
+        "locale": 2
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
+  "plural": "product-category-detail",
+  "strict": true,
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "category": {
+      "type": "String",
+      "required": true
+    },
+    "locale": {
+      "type": "String",
+      "required": true,
+      "default": "zh"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "productCategory": {
+      "type": "belongsTo",
+      "model": "ProductCategory",
+      "foreignKey": "productCategoryId",
+      "options": {
+        "validate": true,
+        "forceId": false
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

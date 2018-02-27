@@ -1,0 +1,68 @@
+{
+  "name": "TransactionStatusDetail",
+  "base": "PersistedModel",
+  "indexes": {
+    "unique_transaction_status": {
+      "keys": {
+        "transactionStatusId": 1,
+        "locale": 1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
+  "plural": "transaction-status-detail",
+  "strict": true,
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "transactionStatusId": {
+      "type": "Number",
+      "required": true
+    },
+    "status": {
+      "type": "String",
+      "required": true
+    },
+    "locale": {
+      "type": "String",
+      "required": true,
+      "default": "zh"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "transactionStatus": {
+      "type": "belongsTo",
+      "model": "TransactionStatus",
+      "property": "transactionStatusId",
+      "options": {
+        "validate": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

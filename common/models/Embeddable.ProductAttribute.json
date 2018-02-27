@@ -1,0 +1,33 @@
+{
+  "name": "ProductAttribute",
+  "base": "Model",
+  "indexes": {},
+  "strict": true,
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "color": {
+      "type": "String",
+      "default": ""
+    },
+    "weight": {
+      "type": "Number",
+      "required": true,
+      "default": 0
+    },
+    "weightUnit": {
+      "type": "String",
+      "required": true,
+      "default": "grams"
+    },
+    "size": {
+      "type": "String",
+      "default": ""
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": []
+}

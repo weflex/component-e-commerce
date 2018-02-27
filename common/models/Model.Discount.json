@@ -1,0 +1,130 @@
+{
+  "name": "Discount",
+  "base": "PersistedModel",
+  "indexes": {},
+  "plural": "discount",
+  "strict": false,
+  "idInjection": false,
+  "forceId": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "replaceOnPUT": true,
+  "properties": {
+    "discountTypeId": {
+      "type": "Number",
+      "required": true
+    },
+    "venueId": {
+      "type": "String",
+      "required": true
+    },
+    "createdBy": {
+      "type": "String",
+      "required": true
+    },
+    "createdAt": {
+      "type": "Date",
+      "required": true
+    },
+    "flatPrice": {
+      "type": "Number"
+    },
+    "pctOfPrice": {
+      "type": "Number"
+    },
+    "minTxnAmt": {
+      "type": "Number"
+    },
+    "minQty": {
+      "type": "Number"
+    },
+    "memberPriceOff": {
+      "type": "Number"
+    },
+    "groupBuyAvailable": {
+      "type": "Number"
+    },
+    "modifiedBy": {
+      "type": "String"
+    },
+    "modifiedAt": {
+      "type": "Date"
+    },
+    "deletedAt": {
+      "type": "Date"
+    },
+    "deletedBy": {
+      "type": "String"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "userCreated": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "createdBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "userModified": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "modifiedBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "userDeleted": {
+      "type": "belongsTo",
+      "model": "WeflexUser",
+      "property": "deletedBy",
+      "options": {
+        "validate": true
+      }
+    },
+    "venue": {
+      "type": "belongsTo",
+      "model": "Venue",
+      "property": "venueId",
+      "options": {
+        "validate": true
+      }
+    },
+    "discountType": {
+      "type": "hasMany",
+      "model": "DiscountType",
+      "foreignKey": "discountTypeId",
+      "options": {
+        "validate": true
+      }
+    },
+    "product": {
+      "type": "hasMany",
+      "model": "Product",
+      "foreignKey": "discountId",
+      "through": "ProductDiscount"
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "WRITE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ]
+}

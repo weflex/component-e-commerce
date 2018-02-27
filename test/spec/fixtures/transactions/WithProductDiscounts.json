@@ -1,0 +1,52 @@
+[
+  {
+    "boughtBy": "venue1Member",
+    "boughtAt": "2018-01-18T13:49:22.205Z",
+    "currency": "CNY",
+    "venueId": "1",
+    "transactionDetail": [
+      {
+        "quantity": 3,
+        "productId": "1",
+        "productPricingId": "1"
+      },
+      {
+        "quantity": 1,
+        "productId": "2",
+        "productPricingId": "2"
+      }
+    ],
+    "transactionStatusId": "1",
+    "paymentTypeId": "4"
+  },
+  {
+    "boughtBy": "venue1Member",
+    "boughtAt": "2018-01-18T13:49:22.205Z",
+    "currency": "CNY",
+    "venueId": "1",
+    "transactionDetail": [
+      {
+        "quantity": 1,
+        "productId": "3",
+        "productPricingId": "3"
+      }
+    ],
+    "transactionStatusId": "2",
+    "paymentTypeId": "4"
+  },
+  {
+    "boughtBy": "venue1Member",
+    "boughtAt": "2018-01-18T13:49:22.205Z",
+    "currency": "CNY",
+    "venueId": "1",
+    "transactionDetail": [
+      {
+        "quantity": 1,
+        "productId": "4",
+        "productPricingId": "4"
+      }
+    ],
+    "transactionStatusId": "2",
+    "paymentTypeId": "4"
+  }
+]

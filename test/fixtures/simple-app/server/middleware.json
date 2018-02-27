@@ -1,0 +1,38 @@
+{
+  "initial:before": {
+    "loopback#token": {
+      "params": {
+        "model": "accessToken"
+      }
+    }
+  },
+  "initial": {
+    "loopback-context#per-request": {
+      "params": {
+        "enableHttpContext": true
+      }
+    }
+  },
+  "session": {},
+  "auth": {},
+  "parse": {},
+  "routes": {
+    "loopback#rest": {
+      "paths": [
+        "${restApiRoot}"
+      ]
+    }
+  },
+  "files": {},
+  "final": {
+    "loopback#urlNotFound": {}
+  },
+  "final:after": {
+    "strong-error-handler": {
+      "params": {
+         "debug": false,
+         "log": false
+       }
+    }
+  }
+}

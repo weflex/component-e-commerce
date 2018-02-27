@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "discountTypeDetail": [
+      {
+        "discountTypeId": 1,
+        "title": "Flat discount",
+        "description": "Flat discount on products",
+        "locale": "en"
+      },
+      {
+        "discountTypeId": 1,
+        "title": "平的折扣",
+        "description": "产品的平面折扣",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "discountTypeDetail": [
+      {
+        "discountTypeId": 2,
+        "title": "Percentage discount",
+        "description": "Percentage discount on products",
+        "locale": "en"
+      },
+      {
+        "discountTypeId": 2,
+        "title": "百分比折扣",
+        "description": "产品的百分比折扣",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "discountTypeDetail": [
+      {
+        "discountTypeId": 3,
+        "title": "Bonus product discount",
+        "description": "Buy one, get one free OR buy product A, get 2 product B free.",
+        "locale": "en"
+      },
+      {
+        "discountTypeId": 3,
+        "title": "奖金产品折扣",
+        "description": "买一个得到一个免费，或购买产品A，获得2个产品B免费。",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "discountTypeDetail": [
+      {
+        "discountTypeId": 4,
+        "title": "Flat discount when min quantity per product",
+        "description": "Flat discount on products when minimum quantity is greater than 'minQty'",
+        "locale": "en"
+      },
+      {
+        "discountTypeId": 4,
+        "title": "最小数量时打折",
+        "description": "最小数量大于“minQty”的产品平面折扣",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "discountTypeDetail": [
+      {
+        "discountTypeId": 5,
+        "title": "Percentage discount when min quantity per product",
+        "description": "Percentage discount on products when minimum quantity is greater than 'minQty'",
+        "locale": "en"
+      },
+      {
+        "discountTypeId": 5,
+        "title": "每个产品的最小数量时的百分比折扣",
+        "description": "最小数量大于“minQty”时产品的百分比折扣",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "discountTypeDetail": [
+      {
+        "discountTypeId": 6,
+        "title": "Membership discount",
+        "description": "Member price for the product",
+        "locale": "en"
+      },
+      {
+        "discountTypeId": 6,
+        "title": "会员折扣",
+        "description": "该产品的会员价格",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "discountTypeDetail": [
+      {
+        "discountTypeId": 7,
+        "title": "Percentage discount for min transaction amount",
+        "description": "Percentage discount when min transaction amount is greater than 'minTxnAmt'",
+        "locale": "en"
+      },
+      {
+        "discountTypeId": 7,
+        "title": "最低交易金额的百分比折扣",
+        "description": "最小交易金额大于“minTxnAmt”时的折扣百分比",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "discountTypeDetail": [
+      {
+        "discountTypeId": 8,
+        "title": "Flat discount for min transaction amount",
+        "description": "Flat discount when min transaction amount is greater than 'minTxnAmt'",
+        "locale": "en"
+      },
+      {
+        "discountTypeId": 8,
+        "title": "最低交易金额的平面折扣",
+        "description": "最小交易金额大于“minTxnAmt”时的平价折扣",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "discountTypeDetail": [
+      {
+        "discountTypeId": 9,
+        "title": "Percentage discount for min quantity per transaction",
+        "description": "Percentage discount when min quantity is greater than 'minQty' in a transaction",
+        "locale": "en"
+      },
+      {
+        "discountTypeId": 9,
+        "title": "每笔交易最小数量的折扣百分比",
+        "description": "当最小数量大于交易中的'minQty'时的百分比折扣",
+        "locale": "zh"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "createdAt": "2018-01-18T13:49:22.205Z",
+    "discountTypeDetail": [
+      {
+        "discountTypeId": 10,
+        "title": "Flat discount for min quantity per transaction",
+        "description": "Flat discount when min quantity is greater than 'minQty' in a transaction",
+        "locale": "en"
+      },
+      {
+        "discountTypeId": 10,
+        "title": "每笔交易最低数量的平价折扣",
+        "description": "在交易中最小数量大于“minQty”时的平价折扣",
+        "locale": "zh"
+      }
+    ]
+  }
+]
