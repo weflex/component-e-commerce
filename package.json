@@ -1,5 +1,5 @@
 {
-  "name": "component-commerce",
+  "name": "@weflex/component-commerce",
   "version": "1.0.0",
   "description": "A package to manage e-commerce",
   "main": "./lib/",
